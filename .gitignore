@@ -1,0 +1,5 @@
+*.vhd.bak
+db/
+.rar
+simulation/
+output_files/
