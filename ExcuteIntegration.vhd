@@ -5,7 +5,7 @@ use work.mine.all;
 
 entity ExcuteIntegration is port--with buffers: ID/Exec  and IExec/Mem
 (
-	rst,clk: in std_logic;
+	rst,clk,flush: in std_logic;
 	src1,src2 : in std_logic_vector(15 downto 0);
 	regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus : in std_logic;
 	PCSrc,BrType: in std_logic_vector(1 downto 0);
@@ -16,7 +16,12 @@ entity ExcuteIntegration is port--with buffers: ID/Exec  and IExec/Mem
 	PCSrcOut,BrTypeOut: out std_logic_vector(1 downto 0);
 	FlagRegResultOut:out std_logic_vector(2 downto 0);
 	rdOut : out std_logic_vector (2 downto 0);
-	src2Propagate : out std_logic_vector (15 downto 0)
+	src2Propagate : out std_logic_vector (15 downto 0);
+		-----------------  Forwarding Unit Part -----------------------  
+    IDEXE_SrcRs:out std_logic_vector(2 downto 0);  -- Rs that enters the forwarding unit from decode/execute buffer
+	 IDEXE_SrcRt:out std_logic_vector(2 downto 0);  -- Rt that enters the forwarding unit from decode/execute buffer	
+	 pc_Src : out std_logic_vector (1 downto 0);
+	 branch_signal : out std_logic
 );
 end entity;
 
@@ -33,7 +38,7 @@ architecture myExcuteIntegration of ExcuteIntegration is
 	end component;
 	component IDExe is port
 	(
-		clk: in std_logic;
+		clk,flush: in std_logic;
 		src1,src2 : in std_logic_vector(15 downto 0);
 		regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus : in std_logic;
 		PCSrc,BrType: in std_logic_vector(1 downto 0);
@@ -74,7 +79,7 @@ end component;
 	signal FlagRegOutSig: std_logic_vector (2 downto 0);
 	signal rdTemp : std_logic_vector (2 downto 0);
 begin
-	IDExeBufferinst:IDExe port map(clk,src1,src2,regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus,PCSrc,BrType,ALUFn,rdIn,src1Sig,src2Sig,regWriteSig,memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,PCSrcSig,BrTypeSig,ALUFnSig,rdTemp);
+	IDExeBufferinst:IDExe port map(clk,flush,src1,src2,regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus,PCSrc,BrType,ALUFn,rdIn,src1Sig,src2Sig,regWriteSig,memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,PCSrcSig,BrTypeSig,ALUFnSig,rdTemp);
 	ExcuteStageinst:ExcuteStage port map(rst,clk,src1Sig,src2Sig,ALUFnSig,ALUResultSig,FlagRegOutSig);
 	IExeMeminst:IExeMem port map(clk,ALUResultSig,FlagRegOutSig,regWriteSig,memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,PCSrcSig,BrTypeSig,rdTemp,ExecuteResultOut,regWriteOut,memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut,PCSrcOut,BrTypeOut,FlagRegResultOut,rdOut,src2Sig,src2Propagate);
 

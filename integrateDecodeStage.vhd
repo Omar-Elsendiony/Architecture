@@ -6,7 +6,7 @@ use std.textio.all;
 
 entity integrateDecodeStage is
 	generic (addressableSpace : integer:= 10 ; wordSize: integer:= 16);
-	port(clk,rst: in std_logic;
+	port(clk,rst,flush: in std_logic;
 		--instructionAddress: in std_logic_vector(wordSize - 1 downto 0);
 		opCode: in std_logic_vector(4 downto 0);
 		rs: in std_logic_vector (2 downto 0);
@@ -73,11 +73,39 @@ signal ioRead,ioWrite,regDst : std_logic;
 signal inPort,outPort : std_logic_vector(15 downto 0);
 signal src1Temp,src2Temp : std_logic_vector(15 downto 0);
 signal ALUSrc : std_logic_vector(1 downto 0);
+
+
+signal regWriteTemp,memWriteTemp,memReadTemp,RegInSrcTemp,SPEnTemp,SPStatusTemp,ioReadTemp,ioWriteTemp,regDstTemp: std_logic;
+signal ALUFnTemp: std_logic_vector(3 downto 0);
+signal BrTypeTemp : std_logic_vector (1 downto 0);
+signal zeros: std_logic_vector (14 downto 0) := (others => '0');
+signal myChoice : std_logic_vector (14 downto 0);
+signal inputMux : std_logic_vector (14 downto 0);
+
+signal flushTemp : std_logic := '0';
 begin
+inputMux <= regWriteTemp & memWriteTemp & memReadTemp & RegInSrcTemp &
+SPEnTemp & SPStatusTemp & ioReadTemp & ioWriteTemp & regDstTemp & ALUFnTemp & BrTypeTemp;
 
 regfile : registerFile port map (clk,rst,regWriteWB,rs,rt,destAddress,destVal,src1Temp,src2Temp);
-cont : controller port map (opCode,regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus,ioRead,ioWrite,regDst,ALUFn,
-PCSrc,ALUSrc,BrType);
+cont : controller port map (opCode,regWriteTemp,memWriteTemp,memReadTemp,RegInSrcTemp,
+SPEnTemp,SPStatusTemp,ioReadTemp,ioWriteTemp,regDstTemp,ALUFnTemp,PCSrc,ALUSrc,BrTypeTemp);
+
+hazardDetectionUnitChoice : mux_2x1 generic map(15) port map (inputMux ,zeros,flushTemp,myChoice
+);
+
+regWrite  <= myChoice(14);
+memWrite  <= myChoice(13);
+memRead  <= myChoice(12);
+RegInSrc  <= myChoice(11);
+SPEn <= myChoice(10);
+SPStatus <= myChoice(9);
+ioRead <= myChoice(8);
+ioWrite <= myChoice(7);
+regDst <= myChoice(6);
+ALUFn <= myChoice(5 downto 2);
+BrType <= myChoice(1 downto 0);
+
 
 perif : peripherals port map(ioRead,ioWrite,src1Temp,inPort);
 

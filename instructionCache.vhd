@@ -21,7 +21,7 @@ begin
 process(interrupt,clk) begin
 if (interrupt = '1') then
 	ISR <= ram(1);  -- if interrupt occurs load the interrupt handler from the address of M[1]
-elsif (rising_edge(clk)) then
+elsif (falling_edge(clk)) then
 	--iAddress <= to_integer(unsigned((instructionAddress(addressableSpace - 1 downto 0))));
 	instruction <= ram(to_integer(unsigned(instructionAddress)) + 1) & ram(to_integer(unsigned(instructionAddress)));
 end if;

@@ -6,7 +6,7 @@ use std.textio.all;
 
 entity fetchAndDecodeIntegration is
 	generic (addressableSpace : integer:= 10 ; wordSize: integer:= 16);
-	port(clk,rst: in std_logic;
+	port(clk,rst,flush: in std_logic;
 		src1,src2 : out std_logic_vector(15 downto 0);
 		regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus : OUT std_logic;
 		PCSrc,BrType: out std_logic_vector(1 downto 0);
@@ -14,7 +14,11 @@ entity fetchAndDecodeIntegration is
 		regWriteWB: in std_logic;
 		destVal : in std_logic_vector(15 downto 0);
 		destAddress: in std_logic_vector(2 downto 0);
-		rdOut: out std_logic_vector(2 downto 0)
+		rdOut: out std_logic_vector(2 downto 0);
+				---------------- Needed -------------------------
+		FETCHDEC_SrcRs : out std_logic_vector(2 downto 0); -- Rs that enters HDU from fetch/decode buffer 
+	 FETCHDEC_SrcRt : out std_logic_vector(2 downto 0); -- Rt that enters HDU from fetch/decode buffer 
+	 	 programCounter : out std_logic_vector(15 downto 0) -- program counter before incrementing
 		);
 end entity;
 
@@ -37,7 +41,7 @@ end component;
 
 component integrateDecodeStage is
 	generic (addressableSpace : integer:= 10 ; wordSize: integer:= 16);
-	port(clk,rst: in std_logic;
+	port(clk,rst,flush: in std_logic;
 		--instructionAddress: in std_logic_vector(wordSize - 1 downto 0);
 		opCode: in std_logic_vector(4 downto 0);
 		rs: in std_logic_vector (2 downto 0);
@@ -66,7 +70,7 @@ signal incPC,immediateVal:std_logic_vector(15 downto 0);
 begin
 
 fetch : integratePC_IC_FDB port map (clk,rst,opCode,rs,rt,rd,incPC,immediateVal);
-decode : integrateDecodeStage port map (clk,rst,opCode,rs,rt,rd,incPC,immediateVal,
+decode : integrateDecodeStage port map (clk,rst,flush,opCode,rs,rt,rd,incPC,immediateVal,
 src1,src2,regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus,PCSrc,BrType,ALUFn,regWriteWB,destVal,destAddress,rdOut);
 
 

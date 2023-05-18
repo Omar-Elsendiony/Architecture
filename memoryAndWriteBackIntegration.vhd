@@ -13,7 +13,16 @@ entity memoryAndWriteBackIntegration is
 		rd : in std_logic_vector (2 downto 0);
 		regDst: out std_logic_vector (2 downto 0);
 		regWriteOutOfintegration : out std_logic;
-		regDstValue : out std_logic_vector (15 downto 0)
+		regDstValue : out std_logic_vector (15 downto 0);
+					---------- added in phase 3 -----------------------
+			 MEM1MEM2_Rd:out std_logic_vector(2 downto 0);
+			 MEM1MEM2_RegWrite:out std_logic;  -- reg write in buffer
+			 EXEMEM1_RegWrite:out std_logic;  -- reg write in buffer
+			 EXEMEM1_Rd:out std_logic_vector(2 downto 0);
+			 WB_Rd:out std_logic_vector(2 downto 0);
+			 WB_RegWrite:out std_logic;
+			 MemRead1 : out std_logic;  -- memRead in ExecuteMEMBuffer that enters HDU
+			 MemRead2 : out std_logic  -- memRead in MEM1MEM2Buffer that enters HDU
 		);
 end entity;
 

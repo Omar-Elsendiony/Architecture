@@ -5,7 +5,7 @@ use work.mine.all;
 
 entity IDExe is port
 (
-	clk: in std_logic;
+	clk,flush: in std_logic;
 	src1,src2 : in std_logic_vector(15 downto 0);
 	regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus : in std_logic;
 	PCSrc,BrType: in std_logic_vector(1 downto 0);
@@ -22,9 +22,12 @@ end entity;
 architecture myIDEXE of IDExe is
 
 begin
-	process(clk)
+	process(clk,flush)
+	
+	variable counter :integer:= 0;
 	begin
 	IF (RISING_EDGE(clk)) then
+		--if (counter = 0) then
 		src1Out<=src1;
 		src2Out<=src2;
 		regWriteOut <= regWrite;
@@ -37,6 +40,27 @@ begin
 		BrTypeOut<=BrType;
 		ALUFnOut<=ALUFn;
 		rdOut<= rdIn;
+--		else
+--		-- if control signals are zeros then the sources values are ignored
+--		src1Out<=src1;
+--		src2Out<=src2;
+--		
+--		
+--		regWriteOut <= '0';
+--		SPEnOut<='0';
+--		SPStatusOut<='0';
+--		memWriteOut<='0';
+--		memReadOut<='0';
+--		RegInSrcOut<='0';
+--
+--		PCSrcOut<="00";
+--		BrTypeOut<="00";
+--		ALUFnOut<="0000";
+--		
+--		rdOut<= rdIn;  --address of destination
+--		
+--		counter := counter - 1;
+--		end if;
 	end if;
 
 
