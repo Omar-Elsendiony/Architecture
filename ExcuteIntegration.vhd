@@ -27,6 +27,8 @@ entity ExcuteIntegration is port--with buffers: ID/Exec  and IExec/Mem
 	 RsSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
 	 RtSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
 		
+	MEMWBResult : in std_logic_vector(15 downto 0);
+
 		
 	 pc_Src : out std_logic_vector (1 downto 0);  -- fetch decode not hereee
 	 branch_signal : out std_logic
@@ -44,9 +46,9 @@ architecture myExcuteIntegration of ExcuteIntegration is
 		FlagRegOut:out std_logic_vector(2 downto 0);
 		EXEMEMResult : in std_logic_vector(15 downto 0);
 		MEM1MEM2Result : in std_logic_vector(15 downto 0);
+		MEMWBResult :  in std_logic_vector(15 downto 0);
 		 RsSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
 	 RtSelector : in std_logic_vector(1 downto 0)  --FORWAAAAAAAAAAAAAAAAAAAARD
-		
 	);
 	end component;
 	component IDExe is port
@@ -104,7 +106,7 @@ begin
 	
 	----------------------------------------------------------------------------------------------------------- executeResultOutTemp is ex/mem
 	ExcuteStageinst:ExcuteStage port map(rst,clk,src1Sig,src2Sig,ALUFnSig,ALUResultSig,FlagRegOutSig,
-	executeResultOutTemp,MEM1MEM2Result,RsSelector,RtSelector);
+	executeResultOutTemp,MEM1MEM2Result,MEMWBResult,RsSelector,RtSelector);
 	
 	IExeMeminst:IExeMem port map(clk,ALUResultSig,FlagRegOutSig,regWriteSig,memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,
 	PCSrcSig,BrTypeSig,rdTemp,executeResultOutTemp,regWriteOut,

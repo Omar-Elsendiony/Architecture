@@ -13,6 +13,7 @@ entity ExcuteStage is port
 	FlagRegOut:out std_logic_vector(2 downto 0);
 	EXEMEMResult : in std_logic_vector(15 downto 0);
 	MEM1MEM2Result : in std_logic_vector(15 downto 0);
+	MEMWBResult :  in std_logic_vector(15 downto 0);
 	 RsSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
 	 RtSelector : in std_logic_vector(1 downto 0)  --FORWAAAAAAAAAAAAAAAAAAAARD
 		
@@ -47,13 +48,16 @@ architecture myExcuteStage of ExcuteStage is
 	signal FlagRegInAlu: std_logic_vector(2 downto 0);
 	signal FlagRegoutAlu: std_logic_vector(2 downto 0);
 	signal SRCALU1,SRCALU2 : std_logic_vector(15 downto 0);
+	
+	signal rsEnterALU : std_logic_vector(15 downto 0);
+	signal rtEnterALU : std_logic_vector(15 downto 0);
 begin
 
-	ALUinst: ALU port map (FlagRegInAlu,src1,src2,ALUFn,ALUResult,FlagRegoutAlu);
+	ALUinst: ALU port map (FlagRegInAlu,rsEnterALU,rtEnterALU,ALUFn,ALUResult,FlagRegoutAlu);
 	CCRinst: CCR port map (rst,clk,FlagRegoutAlu,FlagRegInAlu);
 	FlagRegOut<= FlagRegoutAlu;
 	
---	muxForwardSrc1 : mux port map (src1,src1,src1,src1,)
---	muxForwardSrc2 : mux port map ()
+	muxForwardSrc1 : mux port map (src1,EXEMEMResult,MEM1MEM2Result,MEMWBResult,RsSelector,rsEnterALU);
+	muxForwardSrc2 : mux port map (src2,EXEMEMResult,MEM1MEM2Result,MEMWBResult,RtSelector,rtEnterALU);
 	
 end myExcuteStage;

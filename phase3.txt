@@ -1,0 +1,51 @@
+vsim work.integrateAll
+
+add wave  \
+sim:/integrateall/fde/fetchAndDecodeIntegrationInst/decode/perif/inPort
+force -freeze sim:/integrateall/fde/fetchAndDecodeIntegrationInst/decode/perif/inPort FFFE 0
+
+
+#add wave sim:/integrateall/fde/ExcuteIntegrationInst/*
+#add wave sim:/integrateall/fde/ExcuteIntegrationInst/ExcuteStageinst/*
+
+
+
+force -freeze sim:/integrateAll/clk 1 0, 0 {50 ns} -r 100ns
+
+#add wave sim:/integrateall/*
+add wave sim:/integrateall/fde/*
+add wave sim:/integrateall/mmwb/*
+
+#add wave sim:/integrateall/fde/fetchAndDecodeIntegrationInst/fetch/programC/*
+#add wave sim:/integrateall/fde/fetchAndDecodeIntegrationInst/decode/regFile/*
+
+force -freeze sim:/integrateAll/rst 1 0
+
+# In port then after that 4 NOPS
+mem load -filltype value -filldata 0010000000010100 -fillradix binary /integrateall/fde/fetchAndDecodeIntegrationInst/fetch/icache/ram(0)
+mem load -filltype value -filldata 0 -fillradix binary /integrateall/fde/fetchAndDecodeIntegrationInst/fetch/icache/ram(1)
+mem load -filltype value -filldata 0 -fillradix binary /integrateall/fde/fetchAndDecodeIntegrationInst/fetch/icache/ram(2)
+mem load -filltype value -filldata 0 -fillradix binary /integrateall/fde/fetchAndDecodeIntegrationInst/fetch/icache/ram(3)
+mem load -filltype value -filldata 0 -fillradix binary /integrateall/fde/fetchAndDecodeIntegrationInst/fetch/icache/ram(4)
+
+
+
+# INC then 4 NOPS
+mem load -filltype value -filldata 0011010100010100 -fillradix binary /integrateall/fde/fetchAndDecodeIntegrationInst/fetch/icache/ram(5)
+
+
+mem load -filltype value -filldata 0011010100010100 -fillradix binary /integrateall/fde/fetchAndDecodeIntegrationInst/fetch/icache/ram(10)
+
+##########################################################################
+
+# In R1
+mem load -filltype value -filldata 0010000000000100  -fillradix binary /integrateall/fde/fetchAndDecodeIntegrationInst/fetch/icache/ram(11)
+# IN R2
+mem load -filltype value -filldata 0010000000001000  -fillradix binary /integrateall/fde/fetchAndDecodeIntegrationInst/fetch/icache/ram(12)
+# In R3
+
+
+
+
+
+

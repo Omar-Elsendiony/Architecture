@@ -135,6 +135,8 @@ begin
 	ExecuteResultOut,regWriteOut,memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusout,
 	PCSrcOut,BrTypeOut,flagReg,rdTemp1,src2Propagate,IDEXE_SrcRs,IDEXE_SrcRt,FETCHDEC_SrcRs,FETCHDEC_SrcRt,RSselector,rtSelector,mem1MEM2Result);
 	 
+	 
+	 -- note : destval is memwb value
 	EXEMEM1_Rd <= rdTemp1;
 	EXEMEM1_RegWrite <= regWriteOut;
 	 

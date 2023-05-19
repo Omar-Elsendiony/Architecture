@@ -82,7 +82,8 @@ architecture myFetchDecodeExecuteIntegration of FetchDecodeExecuteIntegration is
 	 RsSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
 	 RtSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
 		
-
+	 MEMWBResult : in std_logic_vector(15 downto 0);	
+		
 	 pc_Src : out std_logic_vector (1 downto 0);
 	 branch_signal : out std_logic
 	);
@@ -101,13 +102,17 @@ architecture myFetchDecodeExecuteIntegration of FetchDecodeExecuteIntegration is
 begin
 	fetchAndDecodeIntegrationInst: fetchAndDecodeIntegration port map(clk,rst,flush,src1Sig,src2Sig,regWriteSig,
 	memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,PCSrcSig,BrTypeSig,ALUFnSig,regWriteWB,destVal,
-	destAddress,rdSig,FETCHDEC_SrcRs,FETCHDEC_SrcRt);
+	destAddress,rdSig,rsOutSign,rtOutSign);
+	
+	FETCHDEC_SrcRs <= rsOutSign;
+	FETCHDEC_SrcRt <= rtOutSign;
 	
 	ExcuteIntegrationInst: ExcuteIntegration port map(rst,clk,flush,src1Sig,src2Sig,
 	regWriteSig,memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,PCSrcSig,BrTypeSig,ALUFnSig,rdSig,ExecuteResultOut,regWriteOut,
 	memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut,PCSrcOut,BrTypeOut,
-	FlagRegResultOut,rdOut,src2Propagate,rsOutSign,rtOutSign,IDEXE_SrcRs,IDEXE_SrcRt,MEM1MEM2Result,RsSelector,RtSelector);
+	FlagRegResultOut,rdOut,src2Propagate,rsOutSign,rtOutSign,IDEXE_SrcRs,IDEXE_SrcRt,MEM1MEM2Result,RsSelector,RtSelector,destVal);
 	
+	--  destVal is memWB value
 	
 	
 	
