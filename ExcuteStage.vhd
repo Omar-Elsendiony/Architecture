@@ -32,13 +32,23 @@ architecture myExcuteStage of ExcuteStage is
 	);
 	END component;
 	
+	component mux IS 
+	Generic ( n : Integer:=16);
+	PORT ( in0,in1,in2,in3 : IN std_logic_vector (n-1 DOWNTO 0);
+			sel : IN  std_logic_vector (1 DOWNTO 0);
+			out1 : OUT std_logic_vector (n-1 DOWNTO 0));
+	END component;
 	
 	signal FlagRegInAlu: std_logic_vector(2 downto 0);
 	signal FlagRegoutAlu: std_logic_vector(2 downto 0);
+	signal SRCALU1,SRCALU2 : std_logic_vector(15 downto 0);
 begin
+
 	ALUinst: ALU port map (FlagRegInAlu,src1,src2,ALUFn,ALUResult,FlagRegoutAlu);
 	CCRinst: CCR port map (rst,clk,FlagRegoutAlu,FlagRegInAlu);
 	FlagRegOut<= FlagRegoutAlu;
 	
+--	muxForwardSrc1 : mux port map (src1,src1,src1,src1,)
+--	muxForwardSrc2 : mux port map ()
 	
 end myExcuteStage;

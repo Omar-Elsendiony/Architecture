@@ -16,9 +16,15 @@ entity fetchAndDecodeIntegration is
 		destAddress: in std_logic_vector(2 downto 0);
 		rdOut: out std_logic_vector(2 downto 0);
 				---------------- Needed -------------------------
+--		rsOut : out std_logic_vector(2 downto 0);  -- for hazard detection unit 
+--		rtOut : out std_logic_vector(2 downto 0);  -- for hazard detection unit
+		
 		FETCHDEC_SrcRs : out std_logic_vector(2 downto 0); -- Rs that enters HDU from fetch/decode buffer 
-	 FETCHDEC_SrcRt : out std_logic_vector(2 downto 0); -- Rt that enters HDU from fetch/decode buffer 
-	 	 programCounter : out std_logic_vector(15 downto 0) -- program counter before incrementing
+	   FETCHDEC_SrcRt : out std_logic_vector(2 downto 0); -- Rt that enters HDU from fetch/decode buffer 
+	 
+	 	 programCounter : out std_logic_vector(15 downto 0); -- program counter before incrementing
+		 rSS: out std_logic_vector (2 downto 0);
+		rtt: out std_logic_vector (2 downto 0)	
 		);
 end entity;
 
@@ -56,7 +62,9 @@ component integrateDecodeStage is
 		regWriteWB: in std_logic;
 		destVal : in std_logic_vector(15 downto 0);
 		destAddress: in std_logic_vector(2 downto 0);
-		rdOut : out std_logic_vector (2 downto 0)
+		rdOut : out std_logic_vector (2 downto 0);
+		rSS: out std_logic_vector (2 downto 0);
+		rtt: out std_logic_vector (2 downto 0)		
 		);
 end component;
 
@@ -71,8 +79,10 @@ begin
 
 fetch : integratePC_IC_FDB port map (clk,rst,opCode,rs,rt,rd,incPC,immediateVal);
 decode : integrateDecodeStage port map (clk,rst,flush,opCode,rs,rt,rd,incPC,immediateVal,
-src1,src2,regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus,PCSrc,BrType,ALUFn,regWriteWB,destVal,destAddress,rdOut);
+src1,src2,regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus,PCSrc,BrType,ALUFn,regWriteWB,
+destVal,destAddress,rdOut,rSS,rtt);
 
-
+FETCHDEC_SrcRs <= rs;
+FETCHDEC_SrcRt <= rt;
 
 end architecture;

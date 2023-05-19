@@ -21,7 +21,9 @@ entity integrateDecodeStage is
 		regWriteWB: in std_logic;
 		destVal : in std_logic_vector(15 downto 0);
 		destAddress: in std_logic_vector(2 downto 0);
-		rdOut : out std_logic_vector (2 downto 0)
+		rdOut : out std_logic_vector (2 downto 0);
+		rSS: out std_logic_vector (2 downto 0);
+		rtt: out std_logic_vector (2 downto 0)
 		);
 end entity;
 
@@ -105,7 +107,8 @@ ioWrite <= myChoice(7);
 regDst <= myChoice(6);
 ALUFn <= myChoice(5 downto 2);
 BrType <= myChoice(1 downto 0);
-
+rSS <= rs;
+rtt <= rt;
 
 perif : peripherals port map(ioRead,ioWrite,src1Temp,inPort);
 

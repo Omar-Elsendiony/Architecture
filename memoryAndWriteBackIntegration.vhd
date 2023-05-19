@@ -10,19 +10,19 @@ entity memoryAndWriteBackIntegration is
 		memRead,memWrite,spEn,spStatus,RegInSrc,RegWrite : in std_logic;
 		ALUResult: in std_logic_vector(15 downto 0);
 		rtOrPC : in std_logic_vector(15 downto 0);
-		rd : in std_logic_vector (2 downto 0);
-		regDst: out std_logic_vector (2 downto 0);
+		rd : in std_logic_vector (2 downto 0);  -- rd input
+		regDst: out std_logic_vector (2 downto 0);  -- rd output
 		regWriteOutOfintegration : out std_logic;
 		regDstValue : out std_logic_vector (15 downto 0);
 					---------- added in phase 3 -----------------------
 			 MEM1MEM2_Rd:out std_logic_vector(2 downto 0);
 			 MEM1MEM2_RegWrite:out std_logic;  -- reg write in buffer
-			 EXEMEM1_RegWrite:out std_logic;  -- reg write in buffer
-			 EXEMEM1_Rd:out std_logic_vector(2 downto 0);
-			 WB_Rd:out std_logic_vector(2 downto 0);
-			 WB_RegWrite:out std_logic;
-			 MemRead1 : out std_logic;  -- memRead in ExecuteMEMBuffer that enters HDU
-			 MemRead2 : out std_logic  -- memRead in MEM1MEM2Buffer that enters HDU
+			 --EXEMEM1_RegWrite:out std_logic;  -- reg write in buffer
+			 --EXEMEM1_Rd:out std_logic_vector(2 downto 0);
+			 --WB_Rd:out std_logic_vector(2 downto 0);
+			 --WB_RegWrite:out std_logic;
+			 --MemRead1 : out std_logic;  -- memRead in ExecuteMEMBuffer that enters HDU
+			 MemRead2 : out std_logic  -- memRead in EXEMEM 1 that enters HDU
 		);
 end entity;
 
@@ -88,14 +88,25 @@ signal addressIntoMem,memVal,memVal2,memVal3,memVal4,ALUResult1,ALUResult2,ALURe
 signal RegInSrcTemp,RegWriteTemp,MemReadTemp:  std_logic;
 signal rdTemp,rdWB: std_logic_vector(2 downto 0);
 signal regInSrcOO: std_logic;
+--signal regDst
+
 begin
 DM : data_Memory port map (clk,rst,memRead,memWrite,addressIntoMem(9 downto 0),rtOrPC,memVal);
+---------------------------------------------------------
 writeBackBuffer : WBbuffer port map (clk,rst,rdTemp,RegWriteTemp,regInSrcTemp,ALUResult2,memVal3,regDst,ALUResult3,memVal4
 ,regWriteOutOfintegration,regInSrcOO);
+--WB_Rd <= regDst;
+--WB_RegWrite <= regWriteOutOfintegration;
+------------------------------------------------------
 SR : stackRegister port map (clk,rst,spEn,spStatus,spAddress);
 addressMux : mux_2x1 port map (ALUResult,spAddress,spEn,addressIntoMem);
+-------------------------------------------------------------
 mem12Buffer : mem1MEM2Buffer PORT MAP (clk,RegInSrc,RegWrite,MemRead,rd,memVal,ALUResult,
 RegInSrcTemp,RegWriteTemp,MemReadTemp,rdTemp,memVal2,ALUResult2);
+MEM1MEM2_Rd <= rdTemp;
+MEM1MEM2_RegWrite <= RegWriteTemp;
+memRead2 <= MemReadTemp;
+------------------------------------------------------------
 DM2 : Data_Memory_2 port map (clk,memVal2,memVal3);
 
 aluORMemory : mux_2x1 port map (memVal4,ALUResult3,regInSrcOO,regDstValue);

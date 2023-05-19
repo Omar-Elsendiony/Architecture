@@ -19,9 +19,13 @@ entity FetchDecodeExecuteIntegration is port
 	-------------------------------------------------------------------------------------
 	IDEXE_SrcRs:out std_logic_vector(2 downto 0);  -- Rs that enters the forwarding unit from decode/execute buffer
 	 IDEXE_SrcRt:out std_logic_vector(2 downto 0);  -- Rt that enters the forwarding unit from decode/execute buffer
+	 
 	 FETCHDEC_SrcRs : out std_logic_vector(2 downto 0); -- Rs that enters HDU from fetch/decode buffer 
 	 FETCHDEC_SrcRt : out std_logic_vector(2 downto 0); -- Rt that enters HDU from fetch/decode buffer 
-	
+	 
+	 RsSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
+	 RtSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
+	 
 	 pc_Src : out std_logic_vector (1 downto 0);
 	 branch_signal : out std_logic;
 	 programCounter : out std_logic_vector(15 downto 0) -- program counter before incrementing
@@ -42,6 +46,8 @@ architecture myFetchDecodeExecuteIntegration of FetchDecodeExecuteIntegration is
 		destAddress: in std_logic_vector(2 downto 0);
 		rdOut: out std_logic_vector(2 downto 0);
 		---------------- Needed -------------------------
+		--rsOut : out std_logic_vector(2 downto 0);  -- for hazard detection unit 
+		--rtOut : out std_logic_vector(2 downto 0);  -- for hazard detection unit
 		FETCHDEC_SrcRs : out std_logic_vector(2 downto 0); -- Rs that enters HDU from fetch/decode buffer 
 	 FETCHDEC_SrcRt : out std_logic_vector(2 downto 0); -- Rt that enters HDU from fetch/decode buffer 
 	 	 programCounter : out std_logic_vector(15 downto 0) -- program counter before incrementing	 
@@ -63,6 +69,8 @@ architecture myFetchDecodeExecuteIntegration of FetchDecodeExecuteIntegration is
 	FlagRegResultOut:out std_logic_vector(2 downto 0);
 	rdOut : out std_logic_vector (2 downto 0);
 	src2Propagate : out std_logic_vector (15 downto 0);
+	
+	rsBufferIn,rtBufferIn : in std_logic_vector (2 downto 0);
 	-----------------  Forwarding Unit Part -----------------------  
     IDEXE_SrcRs:out std_logic_vector(2 downto 0);  -- Rs that enters the forwarding unit from decode/execute buffer
 	 IDEXE_SrcRt:out std_logic_vector(2 downto 0);  -- Rt that enters the forwarding unit from decode/execute buffer	
@@ -78,15 +86,21 @@ architecture myFetchDecodeExecuteIntegration of FetchDecodeExecuteIntegration is
 	signal ALUFnSig: std_logic_vector (3 downto 0);
 	signal rdSig : std_logic_vector(2 downto 0);
 	
+	signal rsOutSign : std_logic_vector(2 downto 0);  
+	signal rtOutSign : std_logic_vector(2 downto 0);
+	
 begin
 	fetchAndDecodeIntegrationInst: fetchAndDecodeIntegration port map(clk,rst,flush,src1Sig,src2Sig,regWriteSig,
 	memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,PCSrcSig,BrTypeSig,ALUFnSig,regWriteWB,destVal,
-	destAddress,rdSig);
+	destAddress,rdSig,FETCHDEC_SrcRs,FETCHDEC_SrcRt);
 	
 	ExcuteIntegrationInst: ExcuteIntegration port map(rst,clk,flush,src1Sig,src2Sig,
-	regWriteSig,memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,PCSrcSig,BrTypeSig,
-	ALUFnSig,rdSig,ExecuteResultOut,regWriteOut,
-	memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut,PCSrcOut,BrTypeOut,FlagRegResultOut,rdOut,src2Propagate);
+	regWriteSig,memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,PCSrcSig,BrTypeSig,ALUFnSig,rdSig,ExecuteResultOut,regWriteOut,
+	memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut,PCSrcOut,BrTypeOut,
+	FlagRegResultOut,rdOut,src2Propagate,rsOutSign,rtOutSign,IDEXE_SrcRs,IDEXE_SrcRt);
+	
+	
+	
 	
 end myFetchDecodeExecuteIntegration;
 

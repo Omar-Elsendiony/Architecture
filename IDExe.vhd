@@ -15,7 +15,9 @@ entity IDExe is port
 	regWriteOut,memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut : out std_logic;
 	PCSrcOut,BrTypeOut: out std_logic_vector(1 downto 0);
 	ALUFnOut: out std_logic_vector (3 downto 0);
-	rdOut : out std_logic_vector (2 downto 0)
+	rdOut : out std_logic_vector (2 downto 0);
+	rsBufferIn,rtBufferIn : in std_logic_vector (2 downto 0);
+	rsBufferOut,rtBufferOut : out std_logic_vector (2 downto 0)
 );
 end entity;
 
@@ -40,6 +42,8 @@ begin
 		BrTypeOut<=BrType;
 		ALUFnOut<=ALUFn;
 		rdOut<= rdIn;
+		rsBufferOut <= rsBufferIn;
+		rtBufferOut <= rtBufferIn;
 --		else
 --		-- if control signals are zeros then the sources values are ignored
 --		src1Out<=src1;
