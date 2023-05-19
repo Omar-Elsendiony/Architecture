@@ -22,7 +22,8 @@ entity memoryAndWriteBackIntegration is
 			 --WB_Rd:out std_logic_vector(2 downto 0);
 			 --WB_RegWrite:out std_logic;
 			 --MemRead1 : out std_logic;  -- memRead in ExecuteMEMBuffer that enters HDU
-			 MemRead2 : out std_logic  -- memRead in EXEMEM 1 that enters HDU
+			 --MemRead2 : out std_logic;  -- memRead in EXEMEM 1 that enters HDU
+			 MEM1MEM2Result : out std_logic_vector(15 downto 0)
 		);
 end entity;
 
@@ -105,7 +106,9 @@ mem12Buffer : mem1MEM2Buffer PORT MAP (clk,RegInSrc,RegWrite,MemRead,rd,memVal,A
 RegInSrcTemp,RegWriteTemp,MemReadTemp,rdTemp,memVal2,ALUResult2);
 MEM1MEM2_Rd <= rdTemp;
 MEM1MEM2_RegWrite <= RegWriteTemp;
-memRead2 <= MemReadTemp;
+MEM1MEM2Result <= ALUResult2;
+
+--memRead2 <= MemReadTemp;
 ------------------------------------------------------------
 DM2 : Data_Memory_2 port map (clk,memVal2,memVal3);
 

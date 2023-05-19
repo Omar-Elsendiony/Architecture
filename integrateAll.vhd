@@ -62,7 +62,8 @@ architecture integraaaate of integrateAll is
 			 --WB_Rd:out std_logic_vector(2 downto 0);
 			 --WB_RegWrite:out std_logic;
 			 --MemRead1 : out std_logic;  -- memRead in ExecuteMEMBuffer that enters HDU
-			 MemRead2 : out std_logic  -- memRead in MEM1MEM2Buffer that enters HDU
+			 --MemRead2 : out std_logic  -- memRead in MEM1MEM2Buffer that enters HDU
+			MEM1MEM2Result : out std_logic_vector(15 downto 0)
 
 			);
 	end component;
@@ -115,7 +116,12 @@ architecture integraaaate of integrateAll is
 	
 	signal IDEXE_SrcRs,IDEXE_SrcRt,FETCHDEC_SrcRs,FETCHDEC_SrcRt: std_logic_vector(2 downto 0);
 	
+	signal MEM1MEM2Result:  std_logic_vector (15 downto 0);
+	
+	signal MEM1MEM2_Rd: std_logic_vector (2 downto 0);
+	signal MEM1MEM2_RegWrite : std_logic;
 begin
+	-- execute result out holds the value from exemem buffer
 	fde : FetchDecodeExecuteIntegration port map (clk,rst,flush,regWrite,destVal,destAddress,
 	ExecuteResultOut,regWriteOut,memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusout,
 	PCSrcOut,BrTypeOut,flagReg,rdTemp1,src2Propagate,IDEXE_SrcRs,IDEXE_SrcRt,FETCHDEC_SrcRs,FETCHDEC_SrcRt);
@@ -123,7 +129,7 @@ begin
 	 
 	mmwb : memoryAndWriteBackIntegration port map (clk,rst,memReadOut,memWriteOut,SPEnOut,
 	SPStatusOut,RegInSrcOut,regWriteOut,
-	ExecuteResultOut,src2Propagate,rdTemp1,destAddress,regWrite,destVal);
+	ExecuteResultOut,src2Propagate,rdTemp1,destAddress,regWrite,destVal,MEM1MEM2_Rd,MEM1MEM2_RegWrite,MEM1MEM2Result);
 	
 	--HDUInst : HDU port map ()
 	

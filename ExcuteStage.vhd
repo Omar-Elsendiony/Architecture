@@ -10,7 +10,8 @@ entity ExcuteStage is port
 	src2: in std_logic_vector(15 downto 0);
 	ALUFn: in std_logic_vector(3 downto 0);
 	ALUResult: out std_logic_vector(15 downto 0);
-	FlagRegOut:out std_logic_vector(2 downto 0)  
+	FlagRegOut:out std_logic_vector(2 downto 0);
+	EXEMEMResult : in std_logic_vector(15 downto 0)
 );
 end entity;
 

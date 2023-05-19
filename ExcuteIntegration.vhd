@@ -34,7 +34,8 @@ architecture myExcuteIntegration of ExcuteIntegration is
 		src2: in std_logic_vector(15 downto 0);
 		ALUFn: in std_logic_vector(3 downto 0);
 		ALUResult: out std_logic_vector(15 downto 0);
-		FlagRegOut:out std_logic_vector(2 downto 0)  
+		FlagRegOut:out std_logic_vector(2 downto 0);
+		EXEMEMResult : in std_logic_vector(15 downto 0)
 	);
 	end component;
 	component IDExe is port
@@ -81,6 +82,8 @@ end component;
 	signal ALUResultSig: std_logic_vector(15 downto 0);
 	signal FlagRegOutSig: std_logic_vector (2 downto 0);
 	signal rdTemp : std_logic_vector (2 downto 0);
+	
+	signal executeResultOutTemp: std_logic_vector(15 downto 0);
 begin
 
 
@@ -89,9 +92,14 @@ begin
 	SPEnSig,SPStatusSig,PCSrcSig,BrTypeSig,ALUFnSig,rdTemp,rsBufferIn,rtBufferIn,IDEXE_SrcRs,IDEXE_SrcRt);
 	
 	-----------------------------------------------------------------------------------------------------------
-	ExcuteStageinst:ExcuteStage port map(rst,clk,src1Sig,src2Sig,ALUFnSig,ALUResultSig,FlagRegOutSig);
-	IExeMeminst:IExeMem port map(clk,ALUResultSig,FlagRegOutSig,regWriteSig,memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,PCSrcSig,BrTypeSig,rdTemp,ExecuteResultOut,regWriteOut,
+	ExcuteStageinst:ExcuteStage port map(rst,clk,src1Sig,src2Sig,ALUFnSig,ALUResultSig,FlagRegOutSig,executeResultOutTemp);
+	
+	IExeMeminst:IExeMem port map(clk,ALUResultSig,FlagRegOutSig,regWriteSig,memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,
+	PCSrcSig,BrTypeSig,rdTemp,executeResultOutTemp,regWriteOut,
 	memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut,PCSrcOut,BrTypeOut,FlagRegResultOut,rdOut,src2Sig,src2Propagate);
-
+	
+	executeResultOut <= executeResultOutTemp;
+	
+	--execute result enter execute stage
 
 end myExcuteIntegration;
