@@ -34,9 +34,12 @@ architecture integraaaate of integrateAll is
 	 FETCHDEC_SrcRs : out std_logic_vector(2 downto 0); -- Rs that enters HDU from fetch/decode buffer 
 	 FETCHDEC_SrcRt : out std_logic_vector(2 downto 0); -- Rt that enters HDU from fetch/decode buffer 
 	
+
 	 RsSelector : in std_logic_vector(1 downto 0) := "00";
 	 RtSelector : in std_logic_vector(1 downto 0) := "00";
-	
+	 
+	 MEM1MEM2Result : in std_logic_vector(15 downto 0);
+
 	 pc_Src : out std_logic_vector (1 downto 0);
 	 branch_signal : out std_logic;
 	 programCounter : out std_logic_vector(15 downto 0) -- program counter before incrementing
@@ -120,12 +123,20 @@ architecture integraaaate of integrateAll is
 	
 	signal MEM1MEM2_Rd: std_logic_vector (2 downto 0);
 	signal MEM1MEM2_RegWrite : std_logic;
+	
+	signal EXEMEM1_Rd: std_logic_vector (2 downto 0);
+	signal EXEMEM1_RegWrite : std_logic;
+	
+	signal rsSelector,rtSelector :  std_logic_vector (1 downto 0);
+	
 begin
 	-- execute result out holds the value from exemem buffer
 	fde : FetchDecodeExecuteIntegration port map (clk,rst,flush,regWrite,destVal,destAddress,
 	ExecuteResultOut,regWriteOut,memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusout,
-	PCSrcOut,BrTypeOut,flagReg,rdTemp1,src2Propagate,IDEXE_SrcRs,IDEXE_SrcRt,FETCHDEC_SrcRs,FETCHDEC_SrcRt);
+	PCSrcOut,BrTypeOut,flagReg,rdTemp1,src2Propagate,IDEXE_SrcRs,IDEXE_SrcRt,FETCHDEC_SrcRs,FETCHDEC_SrcRt,RSselector,rtSelector,mem1MEM2Result);
 	 
+	EXEMEM1_Rd <= rdTemp1;
+	EXEMEM1_RegWrite <= regWriteOut;
 	 
 	mmwb : memoryAndWriteBackIntegration port map (clk,rst,memReadOut,memWriteOut,SPEnOut,
 	SPStatusOut,RegInSrcOut,regWriteOut,
@@ -133,11 +144,11 @@ begin
 	
 	--HDUInst : HDU port map ()
 	
---	FUSrc_1 : forwardingUnit port map ( MEM1MEM2_Rd,MEM1MEM2_RegWrite, 
---			 EXEMEM1_RegWrite,EXEMEM1_Rd,destAddress,regWrite,IDEXE_SrcRs,RsSelector);
+	FUSrc_1 : forwardingUnit port map ( MEM1MEM2_Rd,MEM1MEM2_RegWrite, 
+			 EXEMEM1_RegWrite,EXEMEM1_Rd,destAddress,regWrite,IDEXE_SrcRs,RsSelector);
 --			 
---	FUSrc_2 : forwardingUnit port map ( MEM1MEM2_Rd,MEM1MEM2_RegWrite, 
---			 EXEMEM1_RegWrite,EXEMEM1_Rd,destAddress,regWrite,IDEXE_SrcRt,RtSelector);
+	FUSrc_2 : forwardingUnit port map ( MEM1MEM2_Rd,MEM1MEM2_RegWrite, 
+			 EXEMEM1_RegWrite,EXEMEM1_Rd,destAddress,regWrite,IDEXE_SrcRt,RtSelector);
 	
 	--flush the buffer
 end integraaaate;

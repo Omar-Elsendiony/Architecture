@@ -26,6 +26,8 @@ entity FetchDecodeExecuteIntegration is port
 	 RsSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
 	 RtSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
 	 
+	 MEM1MEM2Result : in std_logic_vector(15 downto 0);
+	 
 	 pc_Src : out std_logic_vector (1 downto 0);
 	 branch_signal : out std_logic;
 	 programCounter : out std_logic_vector(15 downto 0) -- program counter before incrementing
@@ -74,6 +76,13 @@ architecture myFetchDecodeExecuteIntegration of FetchDecodeExecuteIntegration is
 	-----------------  Forwarding Unit Part -----------------------  
     IDEXE_SrcRs:out std_logic_vector(2 downto 0);  -- Rs that enters the forwarding unit from decode/execute buffer
 	 IDEXE_SrcRt:out std_logic_vector(2 downto 0);  -- Rt that enters the forwarding unit from decode/execute buffer	
+	 
+	 MEM1MEM2Result : in std_logic_vector(15 downto 0);
+		 
+	 RsSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
+	 RtSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
+		
+
 	 pc_Src : out std_logic_vector (1 downto 0);
 	 branch_signal : out std_logic
 	);
@@ -97,7 +106,7 @@ begin
 	ExcuteIntegrationInst: ExcuteIntegration port map(rst,clk,flush,src1Sig,src2Sig,
 	regWriteSig,memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,PCSrcSig,BrTypeSig,ALUFnSig,rdSig,ExecuteResultOut,regWriteOut,
 	memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut,PCSrcOut,BrTypeOut,
-	FlagRegResultOut,rdOut,src2Propagate,rsOutSign,rtOutSign,IDEXE_SrcRs,IDEXE_SrcRt);
+	FlagRegResultOut,rdOut,src2Propagate,rsOutSign,rtOutSign,IDEXE_SrcRs,IDEXE_SrcRt,MEM1MEM2Result,RsSelector,RtSelector);
 	
 	
 	

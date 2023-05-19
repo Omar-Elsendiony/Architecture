@@ -11,7 +11,11 @@ entity ExcuteStage is port
 	ALUFn: in std_logic_vector(3 downto 0);
 	ALUResult: out std_logic_vector(15 downto 0);
 	FlagRegOut:out std_logic_vector(2 downto 0);
-	EXEMEMResult : in std_logic_vector(15 downto 0)
+	EXEMEMResult : in std_logic_vector(15 downto 0);
+	MEM1MEM2Result : in std_logic_vector(15 downto 0);
+	 RsSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
+	 RtSelector : in std_logic_vector(1 downto 0)  --FORWAAAAAAAAAAAAAAAAAAAARD
+		
 );
 end entity;
 
