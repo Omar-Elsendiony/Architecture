@@ -11,7 +11,16 @@ entity integrateAll is port
 end entity;
 
 architecture integraaaate of integrateAll is
-
+	
+	component my_nadder IS
+		 generic (n: integer := 3);
+		PORT (a,b : IN  std_logic_vector(n-1 downto 0);
+				 cin : in std_logic;
+			  s : out std_logic_vector(n-1 downto 0);
+				  cout : OUT std_logic );
+	end component;
+	
+	
 	component FetchDecodeExecuteIntegration is port
 	(
 	clk,rst,flush: in std_logic;
@@ -32,6 +41,8 @@ architecture integraaaate of integrateAll is
 	 --  Hazard
 	 FETCHDEC_SrcRs : out std_logic_vector(2 downto 0); -- Rs that enters HDU from fetch/decode buffer 
 	 FETCHDEC_SrcRt : out std_logic_vector(2 downto 0); -- Rt that enters HDU from fetch/decode buffer 
+	 FETCHDEC_MemRead : out std_logic;
+	 FETCHDEC_MemWrite : out std_logic;
 	 -- selectors for forwarding unit
 	 RsSelector : in std_logic_vector(1 downto 0) := "00";
 	 RtSelector : in std_logic_vector(1 downto 0) := "00";	 
@@ -110,7 +121,7 @@ architecture integraaaate of integrateAll is
 	component mux8x1 IS 
 	Generic ( n : Integer:=16);
 	PORT ( in0,in1,in2,in3,in4,in5,in6,in7 : IN std_logic_vector (n-1 DOWNTO 0);
-			sel : IN  std_logic_vector (1 DOWNTO 0);
+			sel : IN  std_logic_vector (2 DOWNTO 0);
 			out1 : OUT std_logic_vector (n-1 DOWNTO 0));
 	END component;
 	
@@ -151,15 +162,30 @@ architecture integraaaate of integrateAll is
 	Signal zeros: std_logic_vector (15 downto 0);
 	
 	signal PCSrcControlSignal :  std_logic_vector (1 downto 0);
-	
+	signal nextAddressSelector : std_logic_vector (2 downto 0);
+	signal nextAddressSelector2 : std_logic_vector (2 downto 0);
 	signal memRead1 : std_logic;
 	signal memRead2 : std_logic;
+	
+	signal FETCHDEC_MemRead :  std_logic;
+	signal FETCHDEC_MemWrite :  std_logic;
+	
+	signal  ONE: std_logic_vector (15 downto 0) := (others=>'0'); -- will be edited in the begin section
+	
+	signal  TWO: std_logic_vector (15 downto 0) := (others=>'0'); --will be edited in the begin section
+	signal cin : std_logic := '0';
+	signal ProgramCounterPlusOne : std_logic_vector (15 downto 0);
+	signal ProgramCounterPlusTwo : std_logic_vector (15 downto 0);
+
 begin
+	ONE (0) <= '1';
+	TWO(1 downto 0) <= "10";
+	nextAddressSelector <= '0' & PCSrcControlSignal;
 	-- execute result out holds the value from exemem buffer
 	fde : FetchDecodeExecuteIntegration port map (clk,rst,flush,regWrite,destVal,destAddress,
 	ExecuteResultOut,regWriteOut,memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusout,ioWriteOut,
 	PCSrcOut,BrTypeOut,flagReg,rdTemp1,src2Propagate,IDEXE_SrcRs,IDEXE_SrcRt,IDEXE_SrcRd,FETCHDEC_SrcRs,
-	FETCHDEC_SrcRt,RSselector,rtSelector,mem1MEM2Result,programCounter,addressComing,interruptSignal,PCSrcControlSignal,memRead1);
+	FETCHDEC_SrcRt,FETCHDEC_MemRead,FETCHDEC_MemWrite,RSselector,rtSelector,mem1MEM2Result,programCounter,addressComing,interruptSignal,PCSrcControlSignal,memRead1);
 	--added ioWriteOut ky
 	--outPort<=ExecuteResultOut; --ky
 	
@@ -167,6 +193,9 @@ begin
 	zeros<=(others=>'0');--ky
 	memRead2 <= memReadOut;
 	
+	
+	adding1 : my_nadder generic map(16) port map (ProgramCounter,ONE,cin,ProgramCounterPlusOne);
+	adding2: my_nadder generic map(16) port map (ProgramCounter,TWO,cin,ProgramCounterPlusTwo);
 	
 	--mux to choose outport when iowrite is 1 ky
 	my_mux2x1: mux_2x1 port map(zeros,ExecuteResultOut,ioWriteOut,outPort);--ky
@@ -188,8 +217,12 @@ begin
 			 EXEMEM1_RegWrite,EXEMEM1_Rd,destAddress,regWrite,IDEXE_SrcRt,IDEXE_SrcRd,ioWriteOut,RtSelector);
 	
 	
---	muxPC: mux8x1 port map(programCounter,programCounter,programCounter,programCounter,programCounter,
---	programCounter,programCounter,programCounter,
+	muxPC: mux8x1 port map(ProgramCounterPlusOne,ProgramCounterPlusTwo,ProgramCounter,programCounter,programCounter,
+	programCounter,programCounter,ProgramCounterPlusOne,nextAddressSelector2,addressComing);
+	
+	
+	nextAddressSelector2 <= nextAddressSelector when flush = '0'
+	else "010";
 	
 	
 	--flush the buffer

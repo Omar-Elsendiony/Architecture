@@ -20,15 +20,17 @@ variable ipc : std_logic_vector(15 downto 0);
 begin
 	if (rst = '1') then
 		counter := 0;
-		incrementedPC <= "0000000000000000";
+		instructionAddress <= "0000000000000000";
+		--incrementedPC <= "0000000000000000";
 	elsif (rising_edge(clk)) then
 		counter := to_integer(unsigned(nextAddress)) ;
 		counter := counter + 1;
 		ipc := std_logic_vector(to_unsigned(counter,incrementedPC'length));	
-	end if;
-	instructionAddress <= nextAddress;
+			instructionAddress <= nextAddress;
 	counterSig <= counter;
 	incrementedPC <= ipc;
+	end if;
+
 end process;
 
 end implementPC;

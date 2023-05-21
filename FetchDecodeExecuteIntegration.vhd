@@ -23,6 +23,8 @@ entity FetchDecodeExecuteIntegration is port
 	 
 	 FETCHDEC_SrcRs : out std_logic_vector(2 downto 0); -- Rs that enters HDU from fetch/decode buffer 
 	 FETCHDEC_SrcRt : out std_logic_vector(2 downto 0); -- Rt that enters HDU from fetch/decode buffer 
+	 FETCHDEC_MemRead : out std_logic;
+	 FETCHDEC_MemWrite : out std_logic;
 	 
 	 RsSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
 	 RtSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
@@ -117,12 +119,15 @@ begin
 	
 	FETCHDEC_SrcRs <= rsOutSign;
 	FETCHDEC_SrcRt <= rtOutSign;
+	FETCHDEC_MemRead <= memReadSig;
+	FETCHDEC_MemWrite <= memWriteSig;
 	pc_Src <= PCSrcSig;
 	
 	ExcuteIntegrationInst: ExcuteIntegration port map(rst,clk,flush,src1Sig,src2Sig,
 	regWriteSig,memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,ioWriteSig,PCSrcSig,BrTypeSig,ALUFnSig,rdSig,ExecuteResultOut,regWriteOut,
 	memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut,ioWriteSig2,PCSrcOut,BrTypeOut,FlagRegResultOut,rdOut,
 	src2Propagate,rsOutSign,rtOutSign,IDEXE_SrcRs,IDEXE_SrcRt,IDEXE_SrcRd,MEM1MEM2Result,RsSelector,RtSelector,destVal,memReadHDU);
+	
 	
 	
 	--added ioWriteSig ky

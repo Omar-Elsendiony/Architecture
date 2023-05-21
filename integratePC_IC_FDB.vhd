@@ -6,7 +6,7 @@ use std.textio.all;
 
 entity integratePC_IC_FDB is
 	generic (addressableSpace : integer:= 10 ; wordSize: integer:= 16);
-	port(clk,rst: in std_logic;
+	port(clk,rst,flush: in std_logic;
 		--instructionAddress: in std_logic_vector(wordSize - 1 downto 0);
 		opCode: out std_logic_vector(4 downto 0);
 		rs: out std_logic_vector (2 downto 0);
@@ -24,7 +24,7 @@ Architecture implementInt of integratePC_IC_FDB is
 
 component fetchDecodeBuffer is
 	generic (wordSize: integer:= 16 ; addressableSpace: integer:= 10);
-	port(clk: in std_logic;
+	port(clk,flush: in std_logic;
 		incrementedPC: in std_logic_vector(wordSize - 1 downto 0);
 		instructionIn: in std_logic_vector((wordSize*2) -1 downto 0);
 		opCode : out std_logic_vector(4 downto 0);
@@ -65,8 +65,8 @@ programC: pc port map (clk,rst,nAddress,iAddress,ipc);
 icache :instructionCache port map(interrupt,clk,iAddress,instr,ISR);
 currentPC <= iAddress;
 
-muxy: mux_2x1 port map (ipc,ISR,interrupt,nAddress);
+muxy: mux_2x1 port map (addressComing,ISR,interrupt,nAddress);
 
-fd :fetchDecodeBuffer port map (clk,ipc,instr,opCode,rs,rt,rd,immediateVal,incPC);
+fd :fetchDecodeBuffer port map (clk,flush,ipc,instr,opCode,rs,rt,rd,immediateVal,incPC);
 
 end architecture;

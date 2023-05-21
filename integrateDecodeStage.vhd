@@ -108,7 +108,8 @@ SPStatus <= myChoice(9);
 ioRead <= myChoice(8);
 ioWrite <= myChoice(7);
 regDst <= myChoice(6);
-ALUFn <= myChoice(5 downto 2);
+ALUFn <= "1001" when flushEnter= '0' 
+else myChoice (5 downto 2);
 BrType <= myChoice(1 downto 0);
 rSS <= rs;
 rtt <= rt;

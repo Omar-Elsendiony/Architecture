@@ -21,6 +21,7 @@ entity fetchAndDecodeIntegration is
 		
 		FETCHDEC_SrcRs : out std_logic_vector(2 downto 0); -- Rs that enters HDU from fetch/decode buffer 
 	   FETCHDEC_SrcRt : out std_logic_vector(2 downto 0); -- Rt that enters HDU from fetch/decode buffer 
+		
 	 	programCounter : out std_logic_vector(15 downto 0); -- program counter before incrementing
 		 
 		addressComing: in std_logic_vector(wordSize - 1  downto 0);
@@ -36,7 +37,7 @@ Architecture implementFD of fetchAndDecodeIntegration is
 
 component integratePC_IC_FDB is
 	generic (addressableSpace : integer:= 10 ; wordSize: integer:= 16);
-	port(clk,rst: in std_logic;
+	port(clk,rst,flush: in std_logic;
 		--instructionAddress: in std_logic_vector(wordSize - 1 downto 0);
 		opCode: out std_logic_vector(4 downto 0);
 		rs: out std_logic_vector (2 downto 0);
@@ -84,7 +85,7 @@ signal ioWriteSig:std_logic;
 
 begin
 
-fetch : integratePC_IC_FDB port map (clk,rst,opCode,rs,rt,rd,incPC,immediateVal,programCounter,addressComing,interruptSignal);
+fetch : integratePC_IC_FDB port map (clk,rst,flush,opCode,rs,rt,rd,incPC,immediateVal,programCounter,addressComing,interruptSignal);
 decode : integrateDecodeStage port map (clk,rst,flush,opCode,rs,rt,rd,incPC,immediateVal,
 src1,src2,regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus,ioWriteSig,PCSrc,BrType,ALUFn,regWriteWB,
 destVal,destAddress,rdOut,rSS,rtt);
