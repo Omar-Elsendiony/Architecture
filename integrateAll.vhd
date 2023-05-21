@@ -14,7 +14,7 @@ architecture integraaaate of integrateAll is
 
 	component FetchDecodeExecuteIntegration is port
 	(
-		clk,rst,flush: in std_logic;
+	clk,rst,flush: in std_logic;
 	regWriteWB: in std_logic;
 	destVal : in std_logic_vector(15 downto 0);
 	destAddress: in std_logic_vector(2 downto 0);
@@ -38,11 +38,12 @@ architecture integraaaate of integrateAll is
 	 MEM1MEM2Result : in std_logic_vector(15 downto 0);
 	 programCounter : out std_logic_vector(15 downto 0); -- program counter before incrementing
 	 addressComing:  std_logic_vector(15  downto 0);
-	 interruptSignal : in std_logic;
+	 interruptSignal : in std_logic; 
 	 pc_Src : out std_logic_vector (1 downto 0);
+	 memReadHDU : out std_logic; 
+	 
+	 
 	 branch_signal : out std_logic
-	 
-	 
 	);
 	end component;
 	
@@ -149,15 +150,23 @@ architecture integraaaate of integrateAll is
 	signal rsSelector,rtSelector :  std_logic_vector (1 downto 0);
 	Signal zeros: std_logic_vector (15 downto 0);
 	
+	signal PCSrcControlSignal :  std_logic_vector (1 downto 0);
+	
+	signal memRead1 : std_logic;
+	signal memRead2 : std_logic;
 begin
 	-- execute result out holds the value from exemem buffer
 	fde : FetchDecodeExecuteIntegration port map (clk,rst,flush,regWrite,destVal,destAddress,
 	ExecuteResultOut,regWriteOut,memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusout,ioWriteOut,
 	PCSrcOut,BrTypeOut,flagReg,rdTemp1,src2Propagate,IDEXE_SrcRs,IDEXE_SrcRt,IDEXE_SrcRd,FETCHDEC_SrcRs,
-	FETCHDEC_SrcRt,RSselector,rtSelector,mem1MEM2Result,programCounter,addressComing,interruptSignal);
+	FETCHDEC_SrcRt,RSselector,rtSelector,mem1MEM2Result,programCounter,addressComing,interruptSignal,PCSrcControlSignal,memRead1);
 	--added ioWriteOut ky
 	--outPort<=ExecuteResultOut; --ky
+	
+	
 	zeros<=(others=>'0');--ky
+	memRead2 <= memReadOut;
+	
 	
 	--mux to choose outport when iowrite is 1 ky
 	my_mux2x1: mux_2x1 port map(zeros,ExecuteResultOut,ioWriteOut,outPort);--ky
@@ -170,7 +179,7 @@ begin
 	SPStatusOut,RegInSrcOut,regWriteOut,
 	ExecuteResultOut,src2Propagate,rdTemp1,destAddress,regWrite,destVal,MEM1MEM2_Rd,MEM1MEM2_RegWrite,MEM1MEM2Result);
 	
-	--HDUInst : HDU port map ()
+	HDUInst : HDU port map (EXEMEM1_Rd,IDEXE_SrcRd,MEMRead1,MEMRead2,FETCHDEC_SrcRs,FETCHDEC_SrcRt,flush);
 	
 	FUSrc_1 : forwardingUnit port map ( MEM1MEM2_Rd,MEM1MEM2_RegWrite, 
 			 EXEMEM1_RegWrite,EXEMEM1_Rd,destAddress,regWrite,IDEXE_SrcRs,IDEXE_SrcRd,ioWriteOut,RsSelector);
@@ -179,7 +188,8 @@ begin
 			 EXEMEM1_RegWrite,EXEMEM1_Rd,destAddress,regWrite,IDEXE_SrcRt,IDEXE_SrcRd,ioWriteOut,RtSelector);
 	
 	
-	--muxPC: mux8x1 port map
+--	muxPC: mux8x1 port map(programCounter,programCounter,programCounter,programCounter,programCounter,
+--	programCounter,programCounter,programCounter,
 	
 	
 	--flush the buffer

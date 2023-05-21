@@ -28,10 +28,10 @@ entity ExcuteIntegration is port--with buffers: ID/Exec  and IExec/Mem
 	 RsSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
 	 RtSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
 		
-	MEMWBResult : in std_logic_vector(15 downto 0);
-
+	 MEMWBResult : in std_logic_vector(15 downto 0);
+	 memReadHDU : out std_logic; 
 		
-	 pc_Src : out std_logic_vector (1 downto 0);  -- fetch decode not hereee
+	 --pc_Src : out std_logic_vector (1 downto 0);  -- fetch decode not hereee
 	 branch_signal : out std_logic
 );
 end entity;
@@ -49,7 +49,9 @@ architecture myExcuteIntegration of ExcuteIntegration is
 		MEM1MEM2Result : in std_logic_vector(15 downto 0);
 		MEMWBResult :  in std_logic_vector(15 downto 0);
 		 RsSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
-	 RtSelector : in std_logic_vector(1 downto 0)  --FORWAAAAAAAAAAAAAAAAAAAARD
+	 RtSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
+	 	BrType : in std_logic_vector(1 downto 0)
+
 	);
 	end component;
 	component IDExe is port
@@ -104,10 +106,14 @@ begin
 	IDExeBufferinst:IDExe port map(clk,flush,src1,src2,regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus,ioWrite,PCSrc,
 	BrType,ALUFn,rdIn,src1Sig,src2Sig,regWriteSig,memWriteSig,memReadSig,RegInSrcSig,
 	SPEnSig,SPStatusSig,ioWriteSig,PCSrcSig,BrTypeSig,ALUFnSig,rdTemp,rsBufferIn,rtBufferIn,IDEXE_SrcRs,IDEXE_SrcRt);
-	--added ioWriteSig ky
+	
+	memReadHDU <= memReadSig;
+	-- for forward unit inst OUT ky
+	IDEXE_SrcRd<=rdTemp;
+	--execute result enter execute stage
 	----------------------------------------------------------------------------------------------------------- executeResultOutTemp is ex/mem
 	ExcuteStageinst:ExcuteStage port map(rst,clk,src1Sig,src2Sig,ALUFnSig,ALUResultSig,FlagRegOutSig,
-	executeResultOutTemp,MEM1MEM2Result,MEMWBResult,RsSelector,RtSelector);
+	executeResultOutTemp,MEM1MEM2Result,MEMWBResult,RsSelector,RtSelector,BrTypeSig);
 	
 	IExeMeminst:IExeMem port map(clk,ALUResultSig,FlagRegOutSig,regWriteSig,memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,ioWriteSig,
 	PCSrcSig,BrTypeSig,rdTemp,executeResultOutTemp,regWriteOut,
@@ -115,8 +121,6 @@ begin
 	
 	executeResultOut <= executeResultOutTemp;
 	
-	-- for forward unit inst OUT ky
-	IDEXE_SrcRd<=rdTemp;
-	--execute result enter execute stage
+
 
 end myExcuteIntegration;

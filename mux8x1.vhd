@@ -4,7 +4,7 @@ USE IEEE.std_logic_1164.all;
 ENTITY mux8x1 IS 
 	Generic ( n : Integer:=16);
 	PORT ( in0,in1,in2,in3,in4,in5,in6,in7 : IN std_logic_vector (n-1 DOWNTO 0);
-			sel : IN  std_logic_vector (1 DOWNTO 0);
+			sel : IN  std_logic_vector (2 DOWNTO 0);
 			out1 : OUT std_logic_vector (n-1 DOWNTO 0));
 END entity;
 

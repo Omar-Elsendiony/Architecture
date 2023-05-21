@@ -15,8 +15,9 @@ entity ExcuteStage is port
 	MEM1MEM2Result : in std_logic_vector(15 downto 0);
 	MEMWBResult :  in std_logic_vector(15 downto 0);
 	 RsSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
-	 RtSelector : in std_logic_vector(1 downto 0)  --FORWAAAAAAAAAAAAAAAAAAAARD
-		
+	 RtSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
+	BrType : in std_logic_vector(1 downto 0);
+	BrOutput: out std_logic -- the output of the branching
 );
 end entity;
 
@@ -46,7 +47,7 @@ architecture myExcuteStage of ExcuteStage is
 	END component;
 	
 	signal FlagRegInAlu: std_logic_vector(2 downto 0);
-	signal FlagRegoutAlu: std_logic_vector(2 downto 0);
+	signal FlagRegoutAlu: std_logic_vector(2 downto 0);   -- carry flag = 1   neg flag = 2  zero flag = 0
 	signal SRCALU1,SRCALU2 : std_logic_vector(15 downto 0);
 	
 	signal rsEnterALU : std_logic_vector(15 downto 0);
@@ -57,7 +58,12 @@ begin
 	CCRinst: CCR port map (rst,clk,FlagRegoutAlu,FlagRegInAlu);
 	FlagRegOut<= FlagRegoutAlu;
 	
+	
 	muxForwardSrc1 : mux port map (src1,EXEMEMResult,MEM1MEM2Result,MEMWBResult,RsSelector,rsEnterALU);
 	muxForwardSrc2 : mux port map (src2,EXEMEMResult,MEM1MEM2Result,MEMWBResult,RtSelector,rtEnterALU);
+	
+	BrOutput <= '1' when (BrType = "01" and FlagRegoutAlu(0) = '1') or (BrType = "10" and FlagRegoutAlu(1) = '1')
+	else '0';
+	
 	
 end myExcuteStage;

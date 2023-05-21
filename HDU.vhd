@@ -5,21 +5,20 @@ use work.mine.all;
 
 entity HDU is port
 (
-	EXEMEMDst : in std_logic_vector(2 downto 0);
-	IDEXEDst : in std_logic_vector(2 downto 0);
+	EXEMEMDst : in std_logic_vector(2 downto 0);  -- load use case
+	IDEXEDst : in std_logic_vector(2 downto 0);  -- load use (the destination)
+	
 	MemRead1 : in std_logic;  -- memRead in decodeExecuteBuffer
 	MemRead2 : in std_logic;  -- memRead in mem1mem2Buffer
 	
-	Rs : in std_logic_vector(2 downto 0);
-	Rt : in std_logic_vector(2 downto 0);
+	Rs : in std_logic_vector(2 downto 0);  --sources
+	Rt : in std_logic_vector(2 downto 0);  --sources
 	flush: out std_logic 
 	
 );
 end entity;
 
 architecture integraaaate of HDU is
-
-	
 	
 begin
 	flush <= '1' when ((Rs = EXEMEMDst or Rt = EXEMEMDst) and mEMRead1='1') or ((RS = IDEXEDst or Rt = IDEXEDst) and  mEMRead2 = '1')

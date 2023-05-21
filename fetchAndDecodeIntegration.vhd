@@ -21,12 +21,12 @@ entity fetchAndDecodeIntegration is
 		
 		FETCHDEC_SrcRs : out std_logic_vector(2 downto 0); -- Rs that enters HDU from fetch/decode buffer 
 	   FETCHDEC_SrcRt : out std_logic_vector(2 downto 0); -- Rt that enters HDU from fetch/decode buffer 
-	 	 programCounter : out std_logic_vector(15 downto 0); -- program counter before incrementing
+	 	programCounter : out std_logic_vector(15 downto 0); -- program counter before incrementing
 		 
-		 addressComing: in std_logic_vector(wordSize - 1  downto 0);
+		addressComing: in std_logic_vector(wordSize - 1  downto 0);
 		interruptSignal : in std_logic;
 		 
-		 rSS: out std_logic_vector (2 downto 0);
+		rSS: out std_logic_vector (2 downto 0);
 		rtt: out std_logic_vector (2 downto 0)	
 		);
 end entity;

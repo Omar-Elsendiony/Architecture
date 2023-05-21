@@ -35,6 +35,7 @@ entity FetchDecodeExecuteIntegration is port
 	 
 	 --------- start here
 	 pc_Src : out std_logic_vector (1 downto 0);
+	 memReadHDU : out std_logic; 
 	 branch_signal : out std_logic
 );
 end entity;
@@ -56,11 +57,11 @@ architecture myFetchDecodeExecuteIntegration of FetchDecodeExecuteIntegration is
 		--rsOut : out std_logic_vector(2 downto 0);  -- for hazard detection unit 
 		--rtOut : out std_logic_vector(2 downto 0);  -- for hazard detection unit
 		FETCHDEC_SrcRs : out std_logic_vector(2 downto 0); -- Rs that enters HDU from fetch/decode buffer 
-	 FETCHDEC_SrcRt : out std_logic_vector(2 downto 0); -- Rt that enters HDU from fetch/decode buffer 
-	 	 programCounter : out std_logic_vector(15 downto 0); -- program counter before incrementing
+	   FETCHDEC_SrcRt : out std_logic_vector(2 downto 0); -- Rt that enters HDU from fetch/decode buffer 
+	 	programCounter : out std_logic_vector(15 downto 0); -- program counter before incrementing
 		addressComing: in std_logic_vector(wordSize - 1  downto 0);
 		interruptSignal : in std_logic
-		-- addressComing,interruptSignal
+		
 		
 		);
 	end component;
@@ -68,7 +69,7 @@ architecture myFetchDecodeExecuteIntegration of FetchDecodeExecuteIntegration is
 	
 	component ExcuteIntegration is port--with buffers: ID/Exec  and IExec/Mem
 	(
-		rst,clk,flush: in std_logic;
+	rst,clk,flush: in std_logic;
 	src1,src2 : in std_logic_vector(15 downto 0);
 	regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus,ioWrite : in std_logic;--added ioWrite ky
 	PCSrc,BrType: in std_logic_vector(1 downto 0);
@@ -93,8 +94,8 @@ architecture myFetchDecodeExecuteIntegration of FetchDecodeExecuteIntegration is
 	 RtSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
 		
 	 MEMWBResult : in std_logic_vector(15 downto 0);	--destVal
-	 
-	 pc_Src : out std_logic_vector (1 downto 0);
+	 memReadHDU : out std_logic; 
+	 --pc_Src : out std_logic_vector (1 downto 0);
 	 branch_signal : out std_logic
 	);
 	end component;
@@ -116,11 +117,14 @@ begin
 	
 	FETCHDEC_SrcRs <= rsOutSign;
 	FETCHDEC_SrcRt <= rtOutSign;
+	pc_Src <= PCSrcSig;
 	
 	ExcuteIntegrationInst: ExcuteIntegration port map(rst,clk,flush,src1Sig,src2Sig,
 	regWriteSig,memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,ioWriteSig,PCSrcSig,BrTypeSig,ALUFnSig,rdSig,ExecuteResultOut,regWriteOut,
-	memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut,ioWriteSig2,PCSrcOut,BrTypeOut,
-	FlagRegResultOut,rdOut,src2Propagate,rsOutSign,rtOutSign,IDEXE_SrcRs,IDEXE_SrcRt,IDEXE_SrcRd,MEM1MEM2Result,RsSelector,RtSelector,destVal);
+	memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut,ioWriteSig2,PCSrcOut,BrTypeOut,FlagRegResultOut,rdOut,
+	src2Propagate,rsOutSign,rtOutSign,IDEXE_SrcRs,IDEXE_SrcRt,IDEXE_SrcRd,MEM1MEM2Result,RsSelector,RtSelector,destVal,memReadHDU);
+	
+	
 	--added ioWriteSig ky
 	--  destVal is memWB value
 	
