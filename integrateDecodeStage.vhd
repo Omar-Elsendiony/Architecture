@@ -15,7 +15,7 @@ entity integrateDecodeStage is
 		incPC: in std_logic_vector(15 downto 0);
 		immediateVal: in std_logic_vector((wordSize)-1 downto 0);
 		src1,src2 : out std_logic_vector(15 downto 0);
-		regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus : OUT std_logic;
+		regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus,ioWriteOut : OUT std_logic;-- added ioWrite ky
 		PCSrc,BrType: out std_logic_vector(1 downto 0);
 		ALUFn : out std_logic_vector (3 downto 0);
 		regWriteWB: in std_logic;
@@ -115,5 +115,8 @@ perif : peripherals port map(ioRead,ioWrite,src1Temp,inPort);
 rsOrInPort: mux_2x1 port map(src1Temp,inPort,IORead,src1);
 regDstMUX: mux_2x1 generic map(3) port map(rd,rd,regDst,rdOut);
 rtOrImmediateOrPC: mux port map(src2Temp,immediateVal,incPC,src2Temp,ALUSrc,src2);
+
+--send ioWrite signal to the buffer IDEXEC     ky
+ioWriteOut<=ioWrite;
 
 end architecture;

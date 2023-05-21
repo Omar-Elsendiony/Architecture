@@ -24,8 +24,7 @@ begin
 	elsif (rising_edge(clk)) then
 		counter := to_integer(unsigned(nextAddress)) ;
 		counter := counter + 1;
-		ipc := std_logic_vector(to_unsigned(counter,incrementedPC'length));
-		
+		ipc := std_logic_vector(to_unsigned(counter,incrementedPC'length));	
 	end if;
 	instructionAddress <= nextAddress;
 	counterSig <= counter;

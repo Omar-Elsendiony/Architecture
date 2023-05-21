@@ -13,7 +13,10 @@ entity integratePC_IC_FDB is
 		rt: out std_logic_vector (2 downto 0);
 		rd: out std_logic_vector (2 downto 0);
 		incPC: out std_logic_vector(15 downto 0);
-		immediateVal: out std_logic_vector((wordSize)-1 downto 0)
+		immediateVal: out std_logic_vector((wordSize)-1 downto 0);
+		currentPC: out std_logic_vector(wordSize - 1 downto 0);
+		addressComing: in std_logic_vector(wordSize - 1  downto 0);
+		interruptSignal : in std_logic
 		);
 end entity;
 
@@ -49,7 +52,7 @@ component instructionCache is
 	port(interrupt,clk: in std_logic;
 		instructionAddress: in std_logic_vector(addressableSpace - 1 downto 0);
 		instruction: out std_logic_vector((wordSize*2)-1 downto 0);
-		ISR : out std_logic_vector(wordSize - 1 downto 0));
+		ISR : out std_logic_vector(wordSize - 1 downto 0));  --intitialize memory
 		--initialMemory
 end component;
 
@@ -60,6 +63,7 @@ signal instr : std_logic_vector(wordSize*2 - 1 downto 0);
 begin
 programC: pc port map (clk,rst,nAddress,iAddress,ipc);
 icache :instructionCache port map(interrupt,clk,iAddress,instr,ISR);
+currentPC <= iAddress;
 
 muxy: mux_2x1 port map (ipc,ISR,interrupt,nAddress);
 

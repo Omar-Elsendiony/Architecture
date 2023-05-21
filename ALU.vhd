@@ -15,7 +15,7 @@ entity ALU is port
 end entity;
 
 architecture ALUArch of ALU is
-	
+	--signal flagTemp2: std_logic_vector(2 downto 0);
 begin
 	process(A,B,SEL,FlagRegIn)
 	variable flagTemp: std_logic_vector(2 downto 0):="000";
@@ -34,15 +34,23 @@ begin
 			flagTemp(negativeFlag):=FlagRegIn(negativeFlag);
 	
 		elsif(SEL = "0111") then --NOT 
-		
+		        resultsignal:= Not A;
 			Result<= NOT A;
 			--update flags
 			flagTemp(carryFlag):=FlagRegIn(carryFlag);
-			flagTemp(zeroFlag):=FlagRegIn(zeroFlag);
-			flagTemp(negativeFlag):=FlagRegIn(negativeFlag);
+			if(to_integer(signed(resultsignal)) = 0) then 
+			flagTemp(zeroFlag):= '1';
+			else
+			flagTemp(zeroFlag):= '0';
+			end if;
+			if(to_integer(signed(resultsignal))< 0) then
+			flagTemp(negativeFlag):= '1';
+			else
+			flagTemp(negativeFlag):='0';
+			end if;
 			
 
-		elsif(SEL = "1001") then --NOP   TODO phase 1 done
+		elsif(SEL = "1001") then --NOP,OUT.POP,RTI,RET,CALL,JMP,JC,JZ,PUSH   TODO phase 1 done
 			Result<=(others=>'0');
 			--update flags
 			flagTemp(carryFlag):=FlagRegIn(carryFlag);
@@ -51,7 +59,7 @@ begin
 			FlagRegOut<=flagTemp;
 			
 
-		elsif(SEL = "0001") then --ADD OR IADD
+	elsif(SEL = "0001") then --ADD OR IADD
 			ResultTemp:= std_logic_vector(unsigned('0'& A) + unsigned('0'&B));
 			if(ResultTemp(16) = '1') then
 				Result<= ResultTemp(15 downto 0);
@@ -60,9 +68,21 @@ begin
 				Result<= ResultTemp(15 downto 0);
 				flagTemp(carryFlag) := '0';
 			end if;
+			if(to_integer(unsigned(ResultTemp(15 downto 0)))= 0) then 
+			flagTemp(zeroFlag):= '1';
+			else
+			flagTemp(zeroFlag):= '0';
+			end if;
+			if(to_integer(signed(ResultTemp(15 downto 0)))<0) then
+			flagTemp(negativeFlag):='1';
+			else
+			flagTemp(negativeFlag):='0';
+			end if;
+
+			--end if;
 
 		elsif(SEL = "0010") then --SUB
-			ResultTemp:= std_logic_vector(unsigned('0'&A) - unsigned('0'&B));
+			ResultTemp:= std_logic_vector(signed('0'&A) - signed('0'&B));
 			if(to_integer(unsigned(ResultTemp)) = 0) then
 				Result<=(others=>'0'); 
 				flagTemp(zeroFlag):='1';
@@ -70,20 +90,31 @@ begin
 				Result<= ResultTemp(15 downto 0);
 				flagTemp(zeroFlag):='0';
 			end if;
+			if(to_integer(signed(ResultTemp(15 downto 0)))<0) then 
+			flagTemp(negativeFlag):= '1';
+			else
+			flagTemp(negativeFlag):= '0';
+			end if;
+			-- Compute carry flag
+    			if (to_integer(signed(A)) < to_integer(signed(B))) then
+       			 flagTemp(carryFlag) := '1';
+    			else
+        		flagTemp(carryFlag) := '0';
+			end if;
 
 		 elsif(SEL = "0101") then --AND   TODO phase 1 done
 			resultSignal:= A And B;
 			Result<=A And B;
 			--update flags 
 			flagTemp(carryFlag):=FlagRegIn(carryFlag);--dont change cf
-			if (resultSignal=x"0000") then
+			if (to_integer(signed(resultSignal)) = 0) then
 				--zf = 1
 				flagTemp(zeroFlag):='1';
 			else
 				--zf = 0
 				flagTemp(zeroFlag):='0';
 			end if;
-			if (resultSignal(15)='1')then
+			if (to_integer(signed(resultSignal))< 0)then
 				--NF = 1
 				flagTemp(negativeFlag):='1';
 			else 
@@ -93,7 +124,24 @@ begin
 			
 
 		elsif(SEL = "0100") then --OR
+			resultSignal:= A OR B;
 			Result<= A OR B;
+			--update flags 
+			flagTemp(carryFlag):=FlagRegIn(carryFlag);--dont change cf
+			if (to_integer(signed(resultSignal)) = 0) then
+				--zf = 1
+				flagTemp(zeroFlag):='1';
+			else
+				--zf = 0
+				flagTemp(zeroFlag):='0';
+			end if;
+			if (to_integer(signed(resultSignal))<0)then
+				--NF = 1
+				flagTemp(negativeFlag):='1';
+			else 
+				--NF = 0
+				flagTemp(negativeFlag):='0';
+			end if;
 
 		elsif(SEL = "0000") then --INC TODO phase 1   --not complete carry flag
 			resultSignal:= std_logic_vector(signed(A) +1);
@@ -123,15 +171,44 @@ begin
 			end if;
 
 		elsif(SEL = "0011") then --DEC
+			resultSignal:= std_logic_vector(signed(A)-1);
 			Result<= std_logic_vector(unsigned(A) -1);
+			--update flags
+			if(to_integer(signed(resultSignal)) = 0) then 
+			flagTemp(zeroFlag):= '1';
+			else
+			flagTemp(zeroFlag):= '0';
+			end if;
+			if(to_integer(signed(resultSignal))<0) then
+			flagTemp(negativeFlag):='1';
+			else
+			flagTemp(negativeFlag):='0';
+			end if;
+			if (to_integer(signed(A)) < 1) then
+       			 flagTemp(carryFlag) := '1';
+    			else
+        		flagTemp(carryFlag) := '0';
+			end if;
+
 			
-		elsif(SEL = "0110") then --IN,LDD,STD (Func=> Result=Src1)   TODO phase 1 done 
-			Result<= std_logic_vector(unsigned(A));
+		elsif(SEL = "0110") then --IN,LDD,STD,MOV (Func=> Result=Src1)   TODO phase 1 done 
+			Result<= A;
 			--Do Not change flags
 			flagTemp(carryFlag):=FlagRegIn(carryFlag);
 			flagTemp(zeroFlag):=FlagRegIn(zeroFlag);
 			flagTemp(negativeFlag):=FlagRegIn(negativeFlag);
 			FlagRegOut<=flagTemp;
+
+
+
+		elsif(SEL = "1000") then -- LDM 
+			Result<= B ;
+			-- Don't change flags 
+			flagTemp(carryFlag):=FlagRegIn(carryFlag);
+			flagTemp(zeroFlag):=FlagRegIn(zeroFlag);
+			flagTemp(negativeFlag):=FlagRegIn(negativeFlag);
+			FlagRegOut<=flagTemp;
+
 		else 
 			flagTemp(carryFlag):=FlagRegIn(carryFlag);
 			flagTemp(zeroFlag):=FlagRegIn(zeroFlag);

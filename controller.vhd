@@ -42,7 +42,7 @@ elsif (opCode = "00111") then  --DEC takes from ALU
 elsif (opCode = "00101") then  --OUT 
 	regWrite <= '0';memWrite <= '0';memRead <= '0';RegInSrc <= '0';SPEn <= '0';SPStatus <= '0';
 	PCSrc <= "00";ALUSrc <= "00";BrType <= "00";IORead <= '0';IOWrite <='1';RegDst <= '0';
-	ALUFn <= "1011";	
+	ALUFn <= "0110"; --1011 changed ky***** 	
 elsif (opCode = "00100") then  --IN 
 	regWrite <= '1';memWrite <= '0';memRead <= '0';RegInSrc <= '1';SPEn <= '0';SPStatus <= '0';
 	PCSrc <= "00";ALUSrc <= "00";BrType <= "00";IORead <= '1';IOWrite <='0';RegDst <= '1';
@@ -74,12 +74,12 @@ elsif (opCode = "01100") then  --OR takes from ALU
 	PCSrc <= "00";ALUSrc <= "00";BrType <= "00";IORead <= '0';IOWrite <='0';RegDst <= '1';
 	ALUFn <= "0100";	
 	
-elsif (opCode = "10000") then  --PUSH takes from ALU
-	regWrite <= '0';memWrite <= '1';memRead <= '0';RegInSrc <= '0';SPEn <= '1';SPStatus <= '1';
+elsif (opCode = "10000") then  --PUSH takes from ALU ---Modified 
+	regWrite <= '0';memWrite <= '1';memRead <= '0';RegInSrc <= '0';SPEn <= '1';SPStatus <= '0';
 	PCSrc <= "00";ALUSrc <= "00";BrType <= "00";IORead <= '0';IOWrite <='0';RegDst <= '0';
 	ALUFn <= "1001";
 elsif (opCode = "10001") then  --POP takes from ALU
-	regWrite <= '1';memWrite <= '0';memRead <= '1';RegInSrc <= '0';SPEn <= '1';SPStatus <= '0';
+	regWrite <= '1';memWrite <= '0';memRead <= '1';RegInSrc <= '0';SPEn <= '1';SPStatus <= '1';
 	PCSrc <= "00";ALUSrc <= "00";BrType <= "00";IORead <= '0';IOWrite <='0';RegDst <= '0';
 	ALUFn <= "1001";
 elsif (opCode = "10010") then  --LDM 

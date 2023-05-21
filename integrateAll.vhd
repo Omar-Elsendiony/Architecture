@@ -5,8 +5,8 @@ use work.mine.all;
 
 entity integrateAll is port
 (
-	clk,rst: in std_logic
-
+	clk,rst: in std_logic;
+	outPort: out std_logic_vector (15 downto 0) --output port which is equla to ExcuteResultOut  ky 
 );
 end entity;
 
@@ -20,29 +20,28 @@ architecture integraaaate of integrateAll is
 	destAddress: in std_logic_vector(2 downto 0);
 	
 	ExecuteResultOut : out std_logic_vector(15 downto 0);
-	regWriteOut,memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut : out std_logic;
+	regWriteOut,memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut,ioWriteOut : out std_logic;--added ioWriteOut ky
 	PCSrcOut,BrTypeOut: out std_logic_vector(1 downto 0);
 	FlagRegResultOut:out std_logic_vector(2 downto 0);
 	rdOut: out std_logic_vector(2 downto 0);
 	src2Propagate : out std_logic_vector(15 downto 0);
-	-----------------  Forwarding Unit Part and hazard detection unit -----------------------
-   
+	-----------------  Forwarding Unit Part and hazard detection unit -----------------------  
     IDEXE_SrcRs:out std_logic_vector(2 downto 0);  -- Rs that enters the forwarding unit from decode/execute buffer
 	 IDEXE_SrcRt:out std_logic_vector(2 downto 0);  -- Rt that enters the forwarding unit from decode/execute buffer
-	 
+	 IDEXE_SrcRd:out std_logic_vector(2 downto 0);  -- Rd that enters the forwarding unit from decode/execute buffer ky
 	 --  Hazard
 	 FETCHDEC_SrcRs : out std_logic_vector(2 downto 0); -- Rs that enters HDU from fetch/decode buffer 
 	 FETCHDEC_SrcRt : out std_logic_vector(2 downto 0); -- Rt that enters HDU from fetch/decode buffer 
-	
-
+	 -- selectors for forwarding unit
 	 RsSelector : in std_logic_vector(1 downto 0) := "00";
-	 RtSelector : in std_logic_vector(1 downto 0) := "00";
-	 
+	 RtSelector : in std_logic_vector(1 downto 0) := "00";	 
 	 MEM1MEM2Result : in std_logic_vector(15 downto 0);
-
+	 programCounter : out std_logic_vector(15 downto 0); -- program counter before incrementing
+	 addressComing:  std_logic_vector(15  downto 0);
+	 interruptSignal : in std_logic;
 	 pc_Src : out std_logic_vector (1 downto 0);
-	 branch_signal : out std_logic;
-	 programCounter : out std_logic_vector(15 downto 0) -- program counter before incrementing
+	 branch_signal : out std_logic
+	 
 	 
 	);
 	end component;
@@ -94,14 +93,29 @@ architecture integraaaate of integrateAll is
 		 WB_Rd:in std_logic_vector(2 downto 0);
 		 WB_RegWrite:in std_logic;
 		 DECEXE_Src:in std_logic_vector(2 downto 0);
+		 IDEXE_SrcRd:in std_logic_vector(2 downto 0);
+		 ioWriteOut:in std_logic;
 		 FUsignal:out std_logic_vector(1 downto 0)
 		 );
 	end component;
 	
+	component mux_2x1 IS 
+	Generic ( n : Integer:=16);
+	PORT ( in0,in1 : IN std_logic_vector (n-1 DOWNTO 0);
+			sel : IN  std_logic;
+			out1 : OUT std_logic_vector (n-1 DOWNTO 0));
+	end component mux_2x1;
+	
+	component mux8x1 IS 
+	Generic ( n : Integer:=16);
+	PORT ( in0,in1,in2,in3,in4,in5,in6,in7 : IN std_logic_vector (n-1 DOWNTO 0);
+			sel : IN  std_logic_vector (1 DOWNTO 0);
+			out1 : OUT std_logic_vector (n-1 DOWNTO 0));
+	END component;
 	
 	
 	signal ExecuteResultOut :  std_logic_vector(15 downto 0);
-	signal regWriteOut,memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut,regWrite :  std_logic;
+	signal regWriteOut,memWriteOut,memReadOut,RegInSrcOut,SPEnOut,ioWriteOut,SPStatusOut,regWrite :  std_logic;
 	--PCSrcOut,BrTypeOut: in std_logic_vector(1 downto 0);
 	--signal FlagRegResultOut:  std_logic_vector(2 downto 0);
 	signal rdTemp1:  std_logic_vector(2 downto 0);
@@ -117,7 +131,7 @@ architecture integraaaate of integrateAll is
 	signal PCSrcOut,BrTypeOut:  std_logic_vector(1 downto 0);
 	signal flush: std_logic;
 	
-	signal IDEXE_SrcRs,IDEXE_SrcRt,FETCHDEC_SrcRs,FETCHDEC_SrcRt: std_logic_vector(2 downto 0);
+	signal IDEXE_SrcRs,IDEXE_SrcRt,IDEXE_SrcRd,FETCHDEC_SrcRs,FETCHDEC_SrcRt: std_logic_vector(2 downto 0);
 	
 	signal MEM1MEM2Result:  std_logic_vector (15 downto 0);
 	
@@ -127,14 +141,26 @@ architecture integraaaate of integrateAll is
 	signal EXEMEM1_Rd: std_logic_vector (2 downto 0);
 	signal EXEMEM1_RegWrite : std_logic;
 	
+	signal programCounter:  std_logic_vector(15  downto 0);
+	signal addressComing:  std_logic_vector(15  downto 0);
+	signal interruptSignal :  std_logic;
+	
+	
 	signal rsSelector,rtSelector :  std_logic_vector (1 downto 0);
+	Signal zeros: std_logic_vector (15 downto 0);
 	
 begin
 	-- execute result out holds the value from exemem buffer
 	fde : FetchDecodeExecuteIntegration port map (clk,rst,flush,regWrite,destVal,destAddress,
-	ExecuteResultOut,regWriteOut,memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusout,
-	PCSrcOut,BrTypeOut,flagReg,rdTemp1,src2Propagate,IDEXE_SrcRs,IDEXE_SrcRt,FETCHDEC_SrcRs,FETCHDEC_SrcRt,RSselector,rtSelector,mem1MEM2Result);
-	 
+	ExecuteResultOut,regWriteOut,memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusout,ioWriteOut,
+	PCSrcOut,BrTypeOut,flagReg,rdTemp1,src2Propagate,IDEXE_SrcRs,IDEXE_SrcRt,IDEXE_SrcRd,FETCHDEC_SrcRs,
+	FETCHDEC_SrcRt,RSselector,rtSelector,mem1MEM2Result,programCounter,addressComing,interruptSignal);
+	--added ioWriteOut ky
+	--outPort<=ExecuteResultOut; --ky
+	zeros<=(others=>'0');--ky
+	
+	--mux to choose outport when iowrite is 1 ky
+	my_mux2x1: mux_2x1 port map(zeros,ExecuteResultOut,ioWriteOut,outPort);--ky
 	 
 	 -- note : destval is memwb value
 	EXEMEM1_Rd <= rdTemp1;
@@ -147,10 +173,14 @@ begin
 	--HDUInst : HDU port map ()
 	
 	FUSrc_1 : forwardingUnit port map ( MEM1MEM2_Rd,MEM1MEM2_RegWrite, 
-			 EXEMEM1_RegWrite,EXEMEM1_Rd,destAddress,regWrite,IDEXE_SrcRs,RsSelector);
+			 EXEMEM1_RegWrite,EXEMEM1_Rd,destAddress,regWrite,IDEXE_SrcRs,IDEXE_SrcRd,ioWriteOut,RsSelector);
 --			 
 	FUSrc_2 : forwardingUnit port map ( MEM1MEM2_Rd,MEM1MEM2_RegWrite, 
-			 EXEMEM1_RegWrite,EXEMEM1_Rd,destAddress,regWrite,IDEXE_SrcRt,RtSelector);
+			 EXEMEM1_RegWrite,EXEMEM1_Rd,destAddress,regWrite,IDEXE_SrcRt,IDEXE_SrcRd,ioWriteOut,RtSelector);
+	
+	
+	--muxPC: mux8x1 port map
+	
 	
 	--flush the buffer
 end integraaaate;

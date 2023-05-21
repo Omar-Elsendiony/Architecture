@@ -7,12 +7,12 @@ entity ExcuteIntegration is port--with buffers: ID/Exec  and IExec/Mem
 (
 	rst,clk,flush: in std_logic;
 	src1,src2 : in std_logic_vector(15 downto 0);
-	regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus : in std_logic;
+	regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus,ioWrite : in std_logic;--added ioWrite ky
 	PCSrc,BrType: in std_logic_vector(1 downto 0);
 	ALUFn : in std_logic_vector (3 downto 0);
 	rdIn : in std_logic_vector (2 downto 0);
 	ExecuteResultOut : out std_logic_vector(15 downto 0);
-	regWriteOut,memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut : out std_logic;
+	regWriteOut,memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut,ioWriteOut : out std_logic;--added ioWriteOut ky
 	PCSrcOut,BrTypeOut: out std_logic_vector(1 downto 0);
 	FlagRegResultOut:out std_logic_vector(2 downto 0);
 	rdOut : out std_logic_vector (2 downto 0);
@@ -21,6 +21,7 @@ entity ExcuteIntegration is port--with buffers: ID/Exec  and IExec/Mem
 		-----------------  Forwarding Unit Part -----------------------  
     IDEXE_SrcRs:out std_logic_vector(2 downto 0);  -- Rs that enters the forwarding unit from decode/execute buffer
 	 IDEXE_SrcRt:out std_logic_vector(2 downto 0);  -- Rt that enters the forwarding unit from decode/execute buffer	
+	 IDEXE_SrcRd:out std_logic_vector(2 downto 0);  -- Rd that enters the forwarding unit from decode/execute buffer	ky
 	 
 	 MEM1MEM2Result : in std_logic_vector(15 downto 0);
 		
@@ -55,12 +56,12 @@ architecture myExcuteIntegration of ExcuteIntegration is
 	(
 		clk,flush: in std_logic;
 		src1,src2 : in std_logic_vector(15 downto 0);
-		regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus : in std_logic;
+		regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus,ioWrite : in std_logic; --added ioWrite ky
 		PCSrc,BrType: in std_logic_vector(1 downto 0);
 		ALUFn : in std_logic_vector (3 downto 0);
 		rdIn : in std_logic_vector (2 downto 0);
 		src1Out,src2Out : out std_logic_vector(15 downto 0);
-		regWriteOut,memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut : out std_logic;
+		regWriteOut,memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut,ioWriteOut : out std_logic;--added ioWriteOut ky
 		PCSrcOut,BrTypeOut: out std_logic_vector(1 downto 0);
 		ALUFnOut: out std_logic_vector (3 downto 0);
 		rdOut : out std_logic_vector (2 downto 0);
@@ -74,11 +75,11 @@ component IExeMem is port
 	clk: in std_logic;
 	ExecuteResult: in std_logic_vector(15 downto 0);
 	FlagRegResult:in std_logic_vector(2 downto 0);
-	regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus : in std_logic;
+	regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus,ioWrite : in std_logic;--added ioWrite ky
 	PCSrc,BrType: in std_logic_vector(1 downto 0);
 	rdIn : in std_logic_vector (2 downto 0);
 	ExecuteResultOut : out std_logic_vector(15 downto 0);
-	regWriteOut,memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut : out std_logic;
+	regWriteOut,memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut,ioWriteOut : out std_logic;--added ioWriteOut ky
 	PCSrcOut,BrTypeOut: out std_logic_vector(1 downto 0);
 	FlagRegResultOut:out std_logic_vector(2 downto 0);
 	rdOut : out std_logic_vector (2 downto 0);
@@ -88,7 +89,7 @@ component IExeMem is port
 end component;
 	
 	signal src1Sig,src2Sig : std_logic_vector(15 downto 0);
-	signal regWriteSig,memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig : std_logic;
+	signal regWriteSig,memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,ioWriteSig : std_logic;--added ioWriteSig ky
 	signal PCSrcSig,BrTypeSig: std_logic_vector(1 downto 0);
 	--alu signals
 	signal ALUFnSig: std_logic_vector (3 downto 0);
@@ -100,20 +101,22 @@ end component;
 begin
 
 
-	IDExeBufferinst:IDExe port map(clk,flush,src1,src2,regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus,PCSrc,
+	IDExeBufferinst:IDExe port map(clk,flush,src1,src2,regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus,ioWrite,PCSrc,
 	BrType,ALUFn,rdIn,src1Sig,src2Sig,regWriteSig,memWriteSig,memReadSig,RegInSrcSig,
-	SPEnSig,SPStatusSig,PCSrcSig,BrTypeSig,ALUFnSig,rdTemp,rsBufferIn,rtBufferIn,IDEXE_SrcRs,IDEXE_SrcRt);
-	
+	SPEnSig,SPStatusSig,ioWriteSig,PCSrcSig,BrTypeSig,ALUFnSig,rdTemp,rsBufferIn,rtBufferIn,IDEXE_SrcRs,IDEXE_SrcRt);
+	--added ioWriteSig ky
 	----------------------------------------------------------------------------------------------------------- executeResultOutTemp is ex/mem
 	ExcuteStageinst:ExcuteStage port map(rst,clk,src1Sig,src2Sig,ALUFnSig,ALUResultSig,FlagRegOutSig,
 	executeResultOutTemp,MEM1MEM2Result,MEMWBResult,RsSelector,RtSelector);
 	
-	IExeMeminst:IExeMem port map(clk,ALUResultSig,FlagRegOutSig,regWriteSig,memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,
+	IExeMeminst:IExeMem port map(clk,ALUResultSig,FlagRegOutSig,regWriteSig,memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,ioWriteSig,
 	PCSrcSig,BrTypeSig,rdTemp,executeResultOutTemp,regWriteOut,
-	memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut,PCSrcOut,BrTypeOut,FlagRegResultOut,rdOut,src2Sig,src2Propagate);
+	memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut,ioWriteOut,PCSrcOut,BrTypeOut,FlagRegResultOut,rdOut,src2Sig,src2Propagate);
 	
 	executeResultOut <= executeResultOutTemp;
 	
+	-- for forward unit inst OUT ky
+	IDEXE_SrcRd<=rdTemp;
 	--execute result enter execute stage
 
 end myExcuteIntegration;
