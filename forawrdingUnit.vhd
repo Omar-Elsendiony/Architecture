@@ -12,19 +12,20 @@ entity forwardingUnit is
     DECEXE_Src:in std_logic_vector(2 downto 0);
 	 IDEXE_SrcRd:in std_logic_vector(2 downto 0);
 	 ioWriteOut:in std_logic;
-    FUsignal:out std_logic_vector(1 downto 0)
- 
+    FUsignal:out std_logic_vector(1 downto 0);
+	 SrcsHDU: in std_logic
     );
 end entity;
 
 architecture architectur of forwardingUnit is
 begin
   
-  FUsignal<="01" when ((EXEMEM1_RegWrite='1' and EXEMEM1_Rd=DECEXE_Src)) 
-  else "10" when ((MEM1MEM2_RegWrite='1' and MEM1MEM2_Rd=DECEXE_Src))
-  else "11" when ( (WB_RegWrite='1' and WB_rd=DECEXE_Src))
+  FUsignal<="01" when ((EXEMEM1_RegWrite='1' and EXEMEM1_Rd=DECEXE_Src) and SrcsHDU = '1') 
+  else "10" when ((MEM1MEM2_RegWrite='1' and MEM1MEM2_Rd=DECEXE_Src) and SrcsHDU = '1')
+  else "11" when ( (WB_RegWrite='1' and WB_rd=DECEXE_Src) and SrcsHDU = '1')
   else "00";
 
+  -- rs and 
 
 end architectur;
    

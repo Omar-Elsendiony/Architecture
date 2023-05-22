@@ -14,10 +14,12 @@ entity ExcuteStage is port
 	EXEMEMResult : in std_logic_vector(15 downto 0); --forward
 	MEM1MEM2Result : in std_logic_vector(15 downto 0);  --forward
 	MEMWBResult :  in std_logic_vector(15 downto 0);  --forward
-	 RsSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
-	 RtSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
+	RsSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
+	RtSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
 	BrType : in std_logic_vector(1 downto 0);
-	BrOutput: out std_logic -- the output of the branching
+	BrOutput: out std_logic; -- the output of the branching
+	rtAfterFU:out std_logic_vector(15 downto 0);
+	jumpAddress : out std_logic_vector(15 downto 0)
 );
 end entity;
 
@@ -61,8 +63,10 @@ begin
 	
 	muxForwardSrc1 : mux port map (src1,EXEMEMResult,MEM1MEM2Result,MEMWBResult,RsSelector,rsEnterALU);
 	muxForwardSrc2 : mux port map (src2,EXEMEMResult,MEM1MEM2Result,MEMWBResult,RtSelector,rtEnterALU);
+	jumpAddress <= rsEnterALU;
+	rtAfterFU<=rtEnterALU;
 	
-	BrOutput <= '1' when (BrType = "01" and FlagRegoutAlu(0) = '1') or (BrType = "10" and FlagRegoutAlu(1) = '1')
+	BrOutput <= '1' when ((BrType = "01" and FlagRegoutAlu(0) = '1') or (BrType = "10" and FlagRegoutAlu(1) = '1') or BrType="11")
 	else '0';
 	
 	

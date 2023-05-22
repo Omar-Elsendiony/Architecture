@@ -10,20 +10,34 @@ entity HDU is port
 	
 	MemRead1 : in std_logic;  -- memRead in decodeExecuteBuffer
 	MemRead2 : in std_logic;  -- memRead in mem1mem2Buffer
-	
+	memWrite1,memWrite2: in std_logic;
 	Rs : in std_logic_vector(2 downto 0);  --sources
 	Rt : in std_logic_vector(2 downto 0);  --sources
-	flush: out std_logic 
+	FETCHDEC_MemRead,FETCHDEC_MemWrite: in std_logic;
+	flush: out std_logic ;
+	PCSrcControlSignal: in std_logic_vector(1 downto 0);
+	clearBuffer: out std_logic
 	
 );
 end entity;
 
 architecture integraaaate of HDU is
-	
+signal flushTemp1,flushTemp2 :  std_logic;
+
+
 begin
 	flush <= '1' when ((Rs = EXEMEMDst or Rt = EXEMEMDst) and mEMRead1='1') or ((RS = IDEXEDst or Rt = IDEXEDst) and  mEMRead2 = '1')
 	else '0';
 	
+	clearBuffer <= '1' when PCSrcControlSignal = "01" 
+	else '0';
+	
+	flushTemp2 <= '1' when ((memRead1 = '1' or memWrite1= '1') and (FETCHDEC_MemRead = '1' or FETCHDEC_MemWrite = '1'))
+	else '0';
+	
+	
+	
+	--flush <= flushTemp1 or flushTemp2;
 	
 	--flush the buffer
 end integraaaate;

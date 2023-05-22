@@ -7,6 +7,7 @@ use std.textio.all;
 entity integratePC_IC_FDB is
 	generic (addressableSpace : integer:= 10 ; wordSize: integer:= 16);
 	port(clk,rst,flush: in std_logic;
+		clearBuffer : in std_logic;
 		--instructionAddress: in std_logic_vector(wordSize - 1 downto 0);
 		opCode: out std_logic_vector(4 downto 0);
 		rs: out std_logic_vector (2 downto 0);
@@ -58,7 +59,7 @@ end component;
 
 signal nAddress,iAddress,ipc,ISR:std_logic_vector(15 downto 0); -- inputs/outputs for pc and icasche
 signal interrupt: std_logic := '0';  -- interrupt signal that if present loads the pc with the address in m[1]
-signal instr : std_logic_vector(wordSize*2 - 1 downto 0);
+signal instr,instrBuff : std_logic_vector(wordSize*2 - 1 downto 0);
 
 begin
 programC: pc port map (clk,rst,nAddress,iAddress,ipc);
@@ -67,6 +68,10 @@ currentPC <= iAddress;
 
 muxy: mux_2x1 port map (addressComing,ISR,interrupt,nAddress);
 
-fd :fetchDecodeBuffer port map (clk,flush,ipc,instr,opCode,rs,rt,rd,immediateVal,incPC);
+fd :fetchDecodeBuffer port map (clk,flush,ipc,instrBuff,opCode,rs,rt,rd,immediateVal,incPC);
+
+instrBuff <= (others=>'0') when clearBuffer = '1'
+else instr;
+
 
 end architecture;

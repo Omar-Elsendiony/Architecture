@@ -6,13 +6,14 @@ use work.mine.all;
 entity FetchDecodeExecuteIntegration is port
 (
 	clk,rst,flush: in std_logic;
+	clearBuffer : in std_logic;
 	regWriteWB: in std_logic;
 	destVal : in std_logic_vector(15 downto 0);
 	destAddress: in std_logic_vector(2 downto 0);
 	
 	ExecuteResultOut : out std_logic_vector(15 downto 0);
 	regWriteOut,memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut,ioWriteOut : out std_logic;--added ioWriteOut ky
-	PCSrcOut,BrTypeOut: out std_logic_vector(1 downto 0);
+	PCSrcOut,BrTypeOut,SrcsHDU: out std_logic_vector(1 downto 0);
 	FlagRegResultOut:out std_logic_vector(2 downto 0);
 	rdOut: out std_logic_vector(2 downto 0);
 	src2Propagate : out std_logic_vector(15 downto 0);
@@ -37,7 +38,8 @@ entity FetchDecodeExecuteIntegration is port
 	 
 	 --------- start here
 	 pc_Src : out std_logic_vector (1 downto 0);
-	 memReadHDU : out std_logic; 
+	 memReadHDU,memWriteHDU : out std_logic; 
+	 
 	 branch_signal : out std_logic
 );
 end entity;
@@ -47,9 +49,10 @@ architecture myFetchDecodeExecuteIntegration of FetchDecodeExecuteIntegration is
 	component fetchAndDecodeIntegration is
 	generic (addressableSpace : integer:= 10 ; wordSize: integer:= 16);
 	port(clk,rst,flush: in std_logic;
+	   clearBuffer : in std_logic;
 		src1,src2 : out std_logic_vector(15 downto 0);
 		regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus,ioWrite : OUT std_logic;--added iowrite ky
-		PCSrc,BrType: out std_logic_vector(1 downto 0);
+		PCSrc,BrType,SrcsHDU: out std_logic_vector(1 downto 0);
 		ALUFn : out std_logic_vector (3 downto 0);
 		regWriteWB: in std_logic;
 		destVal : in std_logic_vector(15 downto 0);
@@ -83,21 +86,21 @@ architecture myFetchDecodeExecuteIntegration of FetchDecodeExecuteIntegration is
 	FlagRegResultOut:out std_logic_vector(2 downto 0);
 	rdOut : out std_logic_vector (2 downto 0);
 	src2Propagate : out std_logic_vector (15 downto 0);
-	
 	rsBufferIn,rtBufferIn : in std_logic_vector (2 downto 0);
-	-----------------  Forwarding Unit Part -----------------------  
+		-----------------  Forwarding Unit Part -----------------------  
     IDEXE_SrcRs:out std_logic_vector(2 downto 0);  -- Rs that enters the forwarding unit from decode/execute buffer
 	 IDEXE_SrcRt:out std_logic_vector(2 downto 0);  -- Rt that enters the forwarding unit from decode/execute buffer	
 	 IDEXE_SrcRd:out std_logic_vector(2 downto 0);  -- Rd that enters the forwarding unit from decode/execute buffer	ky
 	 
 	 MEM1MEM2Result : in std_logic_vector(15 downto 0);
-		 
+		
 	 RsSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
 	 RtSelector : in std_logic_vector(1 downto 0);  --FORWAAAAAAAAAAAAAAAAAAAARD
 		
-	 MEMWBResult : in std_logic_vector(15 downto 0);	--destVal
+	 MEMWBResult : in std_logic_vector(15 downto 0);
 	 memReadHDU : out std_logic; 
-	 --pc_Src : out std_logic_vector (1 downto 0);
+	  memWriteHDU : out std_logic;
+	 --pc_Src : out std_logic_vector (1 downto 0);  -- fetch decode not hereee
 	 branch_signal : out std_logic
 	);
 	end component;
@@ -113,8 +116,8 @@ architecture myFetchDecodeExecuteIntegration of FetchDecodeExecuteIntegration is
 	signal rtOutSign : std_logic_vector(2 downto 0);
 	
 begin
-	fetchAndDecodeIntegrationInst: fetchAndDecodeIntegration port map(clk,rst,flush,src1Sig,src2Sig,regWriteSig,
-	memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,ioWriteSig,PCSrcSig,BrTypeSig,ALUFnSig,regWriteWB,destVal,
+	fetchAndDecodeIntegrationInst: fetchAndDecodeIntegration port map(clk,rst,flush,clearBuffer,src1Sig,src2Sig,regWriteSig,
+	memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,ioWriteSig,PCSrcSig,BrTypeSig,SrcsHDU,ALUFnSig,regWriteWB,destVal,
 	destAddress,rdSig,rsOutSign,rtOutSign,programCounter,addressComing,interruptSignal);--added ioWriteSig ky
 	
 	FETCHDEC_SrcRs <= rsOutSign;
@@ -126,8 +129,9 @@ begin
 	ExcuteIntegrationInst: ExcuteIntegration port map(rst,clk,flush,src1Sig,src2Sig,
 	regWriteSig,memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,ioWriteSig,PCSrcSig,BrTypeSig,ALUFnSig,rdSig,ExecuteResultOut,regWriteOut,
 	memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut,ioWriteSig2,PCSrcOut,BrTypeOut,FlagRegResultOut,rdOut,
-	src2Propagate,rsOutSign,rtOutSign,IDEXE_SrcRs,IDEXE_SrcRt,IDEXE_SrcRd,MEM1MEM2Result,RsSelector,RtSelector,destVal,memReadHDU);
+	src2Propagate,rsOutSign,rtOutSign,IDEXE_SrcRs,IDEXE_SrcRt,IDEXE_SrcRd,MEM1MEM2Result,RsSelector,RtSelector,destVal,memReadHDU,memWriteHDU);
 	
+	--memWrite after d.e
 	
 	
 	--added ioWriteSig ky

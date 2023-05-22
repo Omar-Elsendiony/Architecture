@@ -16,7 +16,7 @@ entity integrateDecodeStage is
 		immediateVal: in std_logic_vector((wordSize)-1 downto 0);
 		src1,src2 : out std_logic_vector(15 downto 0);
 		regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus,ioWriteOut : OUT std_logic;-- added ioWrite ky
-		PCSrc,BrType: out std_logic_vector(1 downto 0);
+		PCSrc,BrType,SrcsHDU: out std_logic_vector(1 downto 0);
 		ALUFn : out std_logic_vector (3 downto 0);
 		regWriteWB: in std_logic;
 		destVal : in std_logic_vector(15 downto 0);
@@ -67,7 +67,7 @@ PORT (opCode : IN std_logic_vector(4 downto 0);
 regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus : OUT std_logic; -- that will propagate
 IORead,IOWrite,RegDst:out std_logic;
 ALUFn : out std_logic_vector (3 downto 0);
-PCSrc,ALUSrc,BrType: out std_logic_vector (1 downto 0)
+PCSrc,ALUSrc,BrType,SrcsHDU: out std_logic_vector (1 downto 0)
  );
 END component controller;
 
@@ -95,7 +95,7 @@ SPEnTemp & SPStatusTemp & ioReadTemp & ioWriteTemp & regDstTemp & ALUFnTemp & Br
 
 regfile : registerFile port map (clk,rst,regWriteWB,rs,rt,destAddress,destVal,src1Temp,src2Temp);
 cont : controller port map (opCode,regWriteTemp,memWriteTemp,memReadTemp,RegInSrcTemp,
-SPEnTemp,SPStatusTemp,ioReadTemp,ioWriteTemp,regDstTemp,ALUFnTemp,PCSrc,ALUSrc,BrTypeTemp);
+SPEnTemp,SPStatusTemp,ioReadTemp,ioWriteTemp,regDstTemp,ALUFnTemp,PCSrc,ALUSrc,BrTypeTemp,SrcsHDU);
 
 hazardDetectionUnitChoice : mux_2x1 generic map(15) port map (zeros,inputMux,flushEnter,myChoice);
 

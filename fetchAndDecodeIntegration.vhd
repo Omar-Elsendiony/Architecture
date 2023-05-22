@@ -7,9 +7,10 @@ use std.textio.all;
 entity fetchAndDecodeIntegration is
 	generic (addressableSpace : integer:= 10 ; wordSize: integer:= 16);
 	port(clk,rst,flush: in std_logic;
+	   clearBuffer : in std_logic;
 		src1,src2 : out std_logic_vector(15 downto 0);
 		regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus,ioWrite : OUT std_logic; --added iOwrite ky
-		PCSrc,BrType: out std_logic_vector(1 downto 0);
+		PCSrc,BrType,SrcsHDU: out std_logic_vector(1 downto 0);
 		ALUFn : out std_logic_vector (3 downto 0);
 		regWriteWB: in std_logic;
 		destVal : in std_logic_vector(15 downto 0);
@@ -38,6 +39,7 @@ Architecture implementFD of fetchAndDecodeIntegration is
 component integratePC_IC_FDB is
 	generic (addressableSpace : integer:= 10 ; wordSize: integer:= 16);
 	port(clk,rst,flush: in std_logic;
+	   clearBuffer : in std_logic;
 		--instructionAddress: in std_logic_vector(wordSize - 1 downto 0);
 		opCode: out std_logic_vector(4 downto 0);
 		rs: out std_logic_vector (2 downto 0);
@@ -64,7 +66,7 @@ component integrateDecodeStage is
 		immediateVal: in std_logic_vector((wordSize)-1 downto 0);
 		src1,src2 : out std_logic_vector(15 downto 0);
 		regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus,ioWriteOut : OUT std_logic;--added ioWriteOut   ky
-		PCSrc,BrType: out std_logic_vector(1 downto 0);
+		PCSrc,BrType,SrcsHDU: out std_logic_vector(1 downto 0);
 		ALUFn : out std_logic_vector (3 downto 0);
 		regWriteWB: in std_logic;
 		destVal : in std_logic_vector(15 downto 0);
@@ -85,9 +87,9 @@ signal ioWriteSig:std_logic;
 
 begin
 
-fetch : integratePC_IC_FDB port map (clk,rst,flush,opCode,rs,rt,rd,incPC,immediateVal,programCounter,addressComing,interruptSignal);
+fetch : integratePC_IC_FDB port map (clk,rst,flush,clearBuffer,opCode,rs,rt,rd,incPC,immediateVal,programCounter,addressComing,interruptSignal);
 decode : integrateDecodeStage port map (clk,rst,flush,opCode,rs,rt,rd,incPC,immediateVal,
-src1,src2,regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus,ioWriteSig,PCSrc,BrType,ALUFn,regWriteWB,
+src1,src2,regWrite,memWrite,memRead,RegInSrc,SPEn,SPStatus,ioWriteSig,PCSrc,BrType,SrcsHDU,ALUFn,regWriteWB,
 destVal,destAddress,rdOut,rSS,rtt);
 
 FETCHDEC_SrcRs <= rs;

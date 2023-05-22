@@ -19,7 +19,7 @@ TYPE ram_type IS ARRAY(0 TO 7) of std_logic_vector(15 DOWNTO 0);
 SIGNAL ram : ram_type ;
 constant zeros : std_logic_vector(15 downto 0) := (others => '0');
 BEGIN
-PROCESS(clk,rst,regWrite) IS
+PROCESS(clk,rst) IS
 BEGIN
 	if rst = '1' THEN
 		ram <= (others => (others=> '0'));

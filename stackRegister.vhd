@@ -20,9 +20,9 @@ IF(rst='1') then
 	spAddress <= std_logic_vector(to_unsigned(sp,spAddress'length));
 ELSIF rising_edge(clk) THEN
 	IF SPEn = '1' THEN
-		if (SPStatus = '0') then  --push hence, decrement
+		if (SPStatus = '1') then  --push hence, decrement
 			sp := sp - 1;
-		elsif (SpStatus = '1') then -- pop hence, increment
+		elsif (SpStatus = '0') then -- pop hence, increment
 			sp := sp + 1;
 		end if;
 	END IF;
