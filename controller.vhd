@@ -115,7 +115,7 @@ elsif (opCode = "11010") then  --JMP
 	ALUFn <= "1001";	
 elsif (opCode = "11011") then  --CALL
 	regWrite <= '0';memWrite <= '1';memRead <= '0';RegInSrc <= '0';SPEn <= '1';SPStatus <= '1';
-	PCSrc <= "10";ALUSrc <= "00";BrType <= "11";SrcsHDU<="10";IORead <= '0';IOWrite <='0';RegDst <= '0';
+	PCSrc <= "10";ALUSrc <= "10";BrType <= "11";SrcsHDU<="10";IORead <= '0';IOWrite <='0';RegDst <= '0';
 	ALUFn <= "1001";
 elsif (opCode = "11100") then  --RET
 	regWrite <= '0';memWrite <= '0';memRead <= '1';RegInSrc <= '0';SPEn <= '1';SPStatus <= '0';

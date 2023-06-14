@@ -5,7 +5,7 @@ use work.mine.all;
 
 entity integrateAll is port
 (
-	clk,rst: in std_logic;
+	clk,rst,interrupt: in std_logic;
 	outPort: out std_logic_vector (15 downto 0) --output port which is equla to ExcuteResultOut  ky 
 );
 end entity;
@@ -67,9 +67,8 @@ end component;
 	 interruptSignal : in std_logic; 
 	 pc_Src : out std_logic_vector (1 downto 0);
 	 memReadHDU,memWriteHDU : out std_logic; 
-	 
-	 
-	 branch_signal : out std_logic
+	 branch_signal : out std_logic;
+	 jumpAddress : out std_logic_vector(15 downto 0)
 	);
 	end component;
 	
@@ -99,7 +98,7 @@ end component;
 	
 	component HDU is port
 	(
-		EXEMEMDst : in std_logic_vector(2 downto 0);  -- load use case
+   EXEMEMDst : in std_logic_vector(2 downto 0);  -- load use case
 	IDEXEDst : in std_logic_vector(2 downto 0);  -- load use (the destination)
 	
 	MemRead1 : in std_logic;  -- memRead in decodeExecuteBuffer
@@ -110,10 +109,20 @@ end component;
 	FETCHDEC_MemRead,FETCHDEC_MemWrite: in std_logic;
 	flush: out std_logic ;
 	PCSrcControlSignal: in std_logic_vector(1 downto 0);
-	clearBuffer: out std_logic
+	clearBuffer: out std_logic;
+	branch_signal : in std_logic
 		
 	);
 	end component;
+	
+	
+	component HDUSrcesBuffer is
+	port(clk: in std_logic;
+		SrcsIn: in std_logic_vector(1 downto 0);
+		SrcsOut : out std_logic_vector(1 downto 0)
+		);
+	end component;
+	
 	
 	component forwardingUnit is
 	  port (
@@ -175,7 +184,7 @@ end component;
 	
 	signal programCounter:  std_logic_vector(15  downto 0);
 	signal addressComing:  std_logic_vector(15  downto 0);
-	signal interruptSignal :  std_logic;
+	signal interruptSignal :  std_logic:= '0';
 	
 	
 	signal rsSelector,rtSelector :  std_logic_vector (1 downto 0);
@@ -201,6 +210,10 @@ end component;
 	signal ProgramCounterPlusOne : std_logic_vector (15 downto 0);
 	signal ProgramCounterPlusTwo : std_logic_vector (15 downto 0);
    signal clearBuffer : std_logic;
+	signal	 branch_signal :  std_logic;
+	 signal jumpAddress : std_logic_vector(15 downto 0);
+	 
+	 signal SrcsNeeded : std_logic_vector(1 downto 0);
 begin
 	ONE (0) <= '1';
 	TWO(1 downto 0) <= "10";
@@ -210,7 +223,7 @@ begin
 	ExecuteResultOut,regWriteOut,memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusout,ioWriteOut,
 	PCSrcOut,BrTypeOut,SrcsHDU,flagReg,rdTemp1,src2Propagate,IDEXE_SrcRs,IDEXE_SrcRt,IDEXE_SrcRd,FETCHDEC_SrcRs,
 	FETCHDEC_SrcRt,FETCHDEC_MemRead,FETCHDEC_MemWrite,RsSelector,RtSelector,mem1MEM2Result
-	,programCounter,addressComing,interruptSignal,PCSrcControlSignal,memRead1,memWriteHDU);
+	,programCounter,addressComing,interrupt,PCSrcControlSignal,memRead1,memWriteHDU,branch_signal,jumpAddress);
 	--added ioWriteOut ky
 	--outPort<=ExecuteResultOut; --ky
 	
@@ -237,21 +250,25 @@ begin
 	ExecuteResultOut,src2Propagate,rdTemp1,destAddress,regWrite,destVal,MEM1MEM2_Rd,MEM1MEM2_RegWrite,MEM1MEM2Result);
 	
 	HDUInst : HDU port map (EXEMEM1_Rd,IDEXE_SrcRd,MEMRead1,MEMRead2,memWrite1,memWrite2
-	,FETCHDEC_SrcRs,FETCHDEC_SrcRt,FETCHDEC_MemRead,FETCHDEC_MemWrite,flush,PCSrcControlSignal,clearBuffer);
+	,FETCHDEC_SrcRs,FETCHDEC_SrcRt,FETCHDEC_MemRead,FETCHDEC_MemWrite,flush,PCSrcControlSignal,clearBuffer,branch_signal);
 	
 	FUSrc_1 : forwardingUnit port map ( MEM1MEM2_Rd,MEM1MEM2_RegWrite, 
-			 EXEMEM1_RegWrite,EXEMEM1_Rd,destAddress,regWrite,IDEXE_SrcRs,IDEXE_SrcRd,ioWriteOut,RsSelector,SrcsHDU(1));
+			 EXEMEM1_RegWrite,EXEMEM1_Rd,destAddress,regWrite,IDEXE_SrcRs,IDEXE_SrcRd,ioWriteOut,RsSelector,SrcsNeeded(1));
 --			 
 	FUSrc_2 : forwardingUnit port map ( MEM1MEM2_Rd,MEM1MEM2_RegWrite, 
-			 EXEMEM1_RegWrite,EXEMEM1_Rd,destAddress,regWrite,IDEXE_SrcRt,IDEXE_SrcRd,ioWriteOut,RtSelector,SrcsHDU(0));
+			 EXEMEM1_RegWrite,EXEMEM1_Rd,destAddress,regWrite,IDEXE_SrcRt,IDEXE_SrcRd,ioWriteOut,RtSelector,SrcsNeeded(0));
 	
+	bufferingSrcs: HDUSrcesBuffer port map(clk,SrcsHDU,SrcsNeeded);
 	
 	muxPC: mux8x1 port map(ProgramCounterPlusOne,ProgramCounterPlusOne,ProgramCounter,programCounter,programCounter,
-	programCounter,programCounter,ProgramCounterPlusOne,nextAddressSelector2,addressComing);
+	programCounter,programCounter,jumpAddress,nextAddressSelector2,addressComing);
 	
 	
-	nextAddressSelector2 <= nextAddressSelector when flush = '0'
+	nextAddressSelector2 <= "111" when branch_signal = '1'
+	else nextAddressSelector when flush = '0'
 	else "010";
+	
+	
 	
 	
 	--flush the buffer

@@ -40,7 +40,8 @@ entity FetchDecodeExecuteIntegration is port
 	 pc_Src : out std_logic_vector (1 downto 0);
 	 memReadHDU,memWriteHDU : out std_logic; 
 	 
-	 branch_signal : out std_logic
+	 branch_signal : out std_logic;
+	 jumpAddress : out std_logic_vector(15 downto 0)
 );
 end entity;
 
@@ -101,7 +102,8 @@ architecture myFetchDecodeExecuteIntegration of FetchDecodeExecuteIntegration is
 	 memReadHDU : out std_logic; 
 	  memWriteHDU : out std_logic;
 	 --pc_Src : out std_logic_vector (1 downto 0);  -- fetch decode not hereee
-	 branch_signal : out std_logic
+	 branch_signal : out std_logic;
+	 jumpAddress : out std_logic_vector(15 downto 0)
 	);
 	end component;
 	
@@ -129,13 +131,14 @@ begin
 	ExcuteIntegrationInst: ExcuteIntegration port map(rst,clk,flush,src1Sig,src2Sig,
 	regWriteSig,memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,ioWriteSig,PCSrcSig,BrTypeSig,ALUFnSig,rdSig,ExecuteResultOut,regWriteOut,
 	memWriteOut,memReadOut,RegInSrcOut,SPEnOut,SPStatusOut,ioWriteSig2,PCSrcOut,BrTypeOut,FlagRegResultOut,rdOut,
-	src2Propagate,rsOutSign,rtOutSign,IDEXE_SrcRs,IDEXE_SrcRt,IDEXE_SrcRd,MEM1MEM2Result,RsSelector,RtSelector,destVal,memReadHDU,memWriteHDU);
+	src2Propagate,rsOutSign,rtOutSign,IDEXE_SrcRs,IDEXE_SrcRt,IDEXE_SrcRd,MEM1MEM2Result,RsSelector,RtSelector,
+	destVal,memReadHDU,memWriteHDU,branch_signal,jumpAddress);
 	
 	--memWrite after d.e
 	
 	
 	--added ioWriteSig ky
-	--  destVal is memWB value
+	--destVal is memWB value
 	
 	ioWriteOut<=ioWriteSig2;
 	

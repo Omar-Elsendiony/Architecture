@@ -32,7 +32,9 @@ entity ExcuteIntegration is port--with buffers: ID/Exec  and IExec/Mem
 	 memReadHDU : out std_logic; 
 	  memWriteHDU : out std_logic;
 	 --pc_Src : out std_logic_vector (1 downto 0);  -- fetch decode not hereee
-	 branch_signal : out std_logic
+	 
+	 branch_signal : out std_logic;
+	 jumpAddress : out std_logic_vector(15 downto 0)
 );
 end entity;
 
@@ -119,7 +121,7 @@ begin
 	--execute result enter execute stage
 	----------------------------------------------------------------------------------------------------------- executeResultOutTemp is ex/mem
 	ExcuteStageinst:ExcuteStage port map(rst,clk,src1Sig,src2Sig,ALUFnSig,ALUResultSig,FlagRegOutSig,
-	executeResultOutTemp,MEM1MEM2Result,MEMWBResult,RsSelector,RtSelector,BrTypeSig,branch_signal,rtAfterFuSig);
+	executeResultOutTemp,MEM1MEM2Result,MEMWBResult,RsSelector,RtSelector,BrTypeSig,branch_signal,rtAfterFuSig,jumpAddress);
 	
 	IExeMeminst:IExeMem port map(clk,ALUResultSig,FlagRegOutSig,regWriteSig,memWriteSig,memReadSig,RegInSrcSig,SPEnSig,SPStatusSig,ioWriteSig,
 	PCSrcSig,BrTypeSig,rdTemp,executeResultOutTemp,regWriteOut,

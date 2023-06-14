@@ -24,7 +24,7 @@ end entity;
 architecture myIDEXE of IDExe is
 
 begin
-	process(clk,flush)
+	process(clk)
 	
 	variable counter :integer:= 0;
 	begin

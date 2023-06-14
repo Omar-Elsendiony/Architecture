@@ -7,7 +7,9 @@ entity pc is
 port (clk,rst:in std_logic;
 		nextAddress : in std_logic_vector(15 downto 0);
 		instructionAddress: out std_logic_vector(15 downto 0);
-		incrementedPC : out std_logic_vector(15 downto 0));
+		incrementedPC : out std_logic_vector(15 downto 0);
+		firstLocation : in std_logic_vector(15 downto 0)
+		);
 end entity;
 
 architecture implementPC of pc is

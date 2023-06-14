@@ -80,7 +80,7 @@ signal ALUSrc : std_logic_vector(1 downto 0);
 signal regWriteTemp,memWriteTemp,memReadTemp,RegInSrcTemp,SPEnTemp,SPStatusTemp,ioReadTemp,ioWriteTemp,regDstTemp: std_logic;
 signal ALUFnTemp: std_logic_vector(3 downto 0);
 signal BrTypeTemp : std_logic_vector (1 downto 0);
-signal zeros: std_logic_vector (14 downto 0) := (others => '0');
+constant zeros: std_logic_vector (14 downto 0) := (others => '0');
 signal myChoice : std_logic_vector (14 downto 0);
 signal inputMux : std_logic_vector (14 downto 0);
 
@@ -88,7 +88,7 @@ signal flushTemp : std_logic := '0';
 signal flushEnter : std_logic;
 begin
 
-flushEnter <= not flush;
+--flushEnter <= not flush;
 
 inputMux <= regWriteTemp & memWriteTemp & memReadTemp & RegInSrcTemp &
 SPEnTemp & SPStatusTemp & ioReadTemp & ioWriteTemp & regDstTemp & ALUFnTemp & BrTypeTemp;
@@ -97,7 +97,7 @@ regfile : registerFile port map (clk,rst,regWriteWB,rs,rt,destAddress,destVal,sr
 cont : controller port map (opCode,regWriteTemp,memWriteTemp,memReadTemp,RegInSrcTemp,
 SPEnTemp,SPStatusTemp,ioReadTemp,ioWriteTemp,regDstTemp,ALUFnTemp,PCSrc,ALUSrc,BrTypeTemp,SrcsHDU);
 
-hazardDetectionUnitChoice : mux_2x1 generic map(15) port map (zeros,inputMux,flushEnter,myChoice);
+hazardDetectionUnitChoice : mux_2x1 generic map(15) port map (inputMux,zeros,flush,myChoice);
 
 regWrite  <= myChoice(14);
 memWrite  <= myChoice(13);
@@ -108,7 +108,7 @@ SPStatus <= myChoice(9);
 ioRead <= myChoice(8);
 ioWrite <= myChoice(7);
 regDst <= myChoice(6);
-ALUFn <= "1001" when flushEnter= '0' 
+ALUFn <= "1001" when flush= '1' 
 else myChoice (5 downto 2);
 BrType <= myChoice(1 downto 0);
 rSS <= rs;
